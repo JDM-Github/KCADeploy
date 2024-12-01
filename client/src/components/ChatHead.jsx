@@ -160,7 +160,7 @@ export default function ChatScreen({ userInfo }) {
 				}`}
 			>
 				{isMessageBoxVisible && (
-					<div className="message-container">
+					<div className="message-container z-255">
 						{messages.length > 0 ? (
 							messages.map((msg, index) => (
 								<>
@@ -209,6 +209,11 @@ export default function ChatScreen({ userInfo }) {
 								type="text"
 								value={inputValue}
 								onChange={handleInputChange}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") {
+										handleSendMessage();
+									}
+								}}
 								placeholder="Type a message..."
 							/>
 							<Form.Control

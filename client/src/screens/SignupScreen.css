@@ -1,11 +1,3 @@
-.bg-registration {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: #ccc;
-}
 .registration-design {
 	display: flex;
 	justify-content: center;
@@ -20,7 +12,9 @@
 }
 
 .registration-design .registration-card {
-	position: relative;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
 	width: 45%;
 	width: auto;
 	height: auto;

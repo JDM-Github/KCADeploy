@@ -1,25 +1,26 @@
 {
   "files": {
-    "main.css": "/static/css/main.f6300310.css",
-    "main.js": "/static/js/main.5450fdaf.js",
+    "main.css": "/static/css/main.1024f9ca.css",
+    "main.js": "/static/js/main.f773b644.js",
     "static/js/453.258b012d.chunk.js": "/static/js/453.258b012d.chunk.js",
     "static/media/fa-solid-900.ttf": "/static/media/fa-solid-900.07ed6d5fa32c1d54af0f.ttf",
     "static/media/LOGO.png": "/static/media/LOGO.3bd02902ca7d5ae9f1e3.png",
     "static/media/fa-brands-400.ttf": "/static/media/fa-brands-400.0ff70dcbf135d859ebf3.ttf",
-    "static/media/qr_code.jpg": "/static/media/qr_code.b2fa6caef12ecbe14b0b.jpg",
     "static/media/fa-solid-900.woff2": "/static/media/fa-solid-900.93f719f4d62bfa3e748c.woff2",
     "static/media/fa-brands-400.woff2": "/static/media/fa-brands-400.bb8d5a145e22822103fb.woff2",
     "static/media/fa-regular-400.ttf": "/static/media/fa-regular-400.17a6e1aebccdbaa39e78.ttf",
+    "static/media/paymentIcon.jpeg": "/static/media/paymentIcon.02d195200dc098b1eee9.jpeg",
     "static/media/fa-regular-400.woff2": "/static/media/fa-regular-400.bc3722686635b5f86132.woff2",
+    "static/media/718-font.otf": "/static/media/718-font.9a16b5417d2d662dfcfb.otf",
     "static/media/fa-v4compatibility.ttf": "/static/media/fa-v4compatibility.0f6cb412603527bda691.ttf",
     "static/media/fa-v4compatibility.woff2": "/static/media/fa-v4compatibility.6cfec8414be20e2c3426.woff2",
     "index.html": "/index.html",
-    "main.f6300310.css.map": "/static/css/main.f6300310.css.map",
-    "main.5450fdaf.js.map": "/static/js/main.5450fdaf.js.map",
+    "main.1024f9ca.css.map": "/static/css/main.1024f9ca.css.map",
+    "main.f773b644.js.map": "/static/js/main.f773b644.js.map",
     "453.258b012d.chunk.js.map": "/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f6300310.css",
-    "static/js/main.5450fdaf.js"
+    "static/css/main.1024f9ca.css",
+    "static/js/main.f773b644.js"
   ]
 }

@@ -2,7 +2,7 @@ require("dotenv").config();
 const pg = require("pg");
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize(
-	"postgresql://KCA:hS4sEgVpW7S1FPbV4Fv4wA@kca-cluster-2402.jxf.gcp-asia-southeast1.cockroachlabs.cloud:26257/kca?sslmode=verify-full",
+	"postgresql://jdm:gA00MXJG6XdxLl7tZvCuEA@jdm-master-15017.7tt.aws-us-east-1.cockroachlabs.cloud:26257/kca?sslmode=verify-full",
 	{
 		dialect: "postgres",
 		dialectModule: pg,
@@ -129,13 +129,14 @@ const Product = sequelize.define(
 		images: { type: DataTypes.ARRAY(DataTypes.STRING) },
 		brand: { type: DataTypes.STRING, allowNull: false },
 		category: { type: DataTypes.STRING, allowNull: false },
-		description: { type: DataTypes.STRING, allowNull: false },
+		description: { type: DataTypes.STRING(500), allowNull: false },
 		price: { type: DataTypes.FLOAT, allowNull: false },
 		countInStock: { type: DataTypes.INTEGER, allowNull: false },
 		rating: { type: DataTypes.FLOAT, allowNull: false },
 		numReviews: { type: DataTypes.INTEGER, allowNull: false },
 		isArchived: { type: DataTypes.BOOLEAN, defaultValue: false },
 		archivedAt: { type: DataTypes.DATE },
+		orderCount: { type: DataTypes.INTEGER, defaultValue: 0 },
 	},
 	{
 		timestamps: true,

@@ -1,16 +1,17 @@
 import React, { useContext, useReducer, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import { Store } from "../Store";
 import { toast } from "react-toastify";
 import getError from "../utils";
-import axios from "axios";
-import { Box, TextField } from "@mui/material";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
+import {
+	Box,
+	TextField,
+	Grid,
+	Button,
+	Card,
+	CardContent,
+	Typography,
+} from "@mui/material";
 import RequestHandler from "../functions/RequestHandler";
 
 const reducer = (state, action) => {
@@ -21,7 +22,6 @@ const reducer = (state, action) => {
 			return { ...state, loadingUpdate: false };
 		case "UPDATE_FAIL":
 			return { ...state, loadingUpdate: false };
-
 		default:
 			return state;
 	}
@@ -44,24 +44,12 @@ export default function ProfileScreen() {
 	);
 	const [location, setLocation] = useState(userInfo.location);
 	const [phoneNum, setPhoneNum] = useState(userInfo.phoneNum);
-
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
-	const [bday, setBday] = useState("");
-	const [gender, setGender] = useState("");
 
 	const [{ loadingUpdate }, dispatch] = useReducer(reducer, {
 		loadingUpdate: false,
 	});
-
-	const handleBday = (event) => {
-		const digits = event.target.value.replace(/[^0-9 -/]/g, "");
-		const newValue = digits.slice(0, 9);
-		setBday(newValue);
-	};
-	const handleGender = (e) => {
-		setGender(e.target.value);
-	};
 
 	const submitHandler = async (e) => {
 		e.preventDefault();
@@ -99,159 +87,224 @@ export default function ProfileScreen() {
 	};
 
 	return (
-		<div className="container small-container">
+		<div className="container flex justify-center mt-10">
 			<Helmet>
 				<title>User Profile</title>
 			</Helmet>
-			<h1 className="my-3">
-				<center>User Profile</center>
-			</h1>
-			<form onSubmit={submitHandler}>
-				<div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "33%" }}
-						label="First Name"
-						variant="outlined"
-						value={name}
-						required
-						onChange={(e) => setName(e.target.value)}
-					/>
-					<TextField
-						sx={{ display: "flex", width: "33%" }}
-						label="Middle Name"
-						variant="outlined"
-						value={middlename}
-						required
-						onChange={(e) => setMiddleName(e.target.value)}
-					/>
-					<TextField
-						sx={{ display: "flex", width: "33%" }}
-						label="Last Name"
-						variant="outlined"
-						value={lastname}
-						required
-						onChange={(e) => setLastName(e.target.value)}
-					/>
-				</div>
 
-				<div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "33%" }}
-						label="Suffix"
-						variant="outlined"
-						value={suffix}
-						onChange={(e) => setSuffix(e.target.value)}
-					/>
-					<div style={{ display: "flex", width: "33%" }} />
-					<TextField
-						sx={{ display: "flex", width: "33%" }}
-						label="Birthday"
-						variant="outlined"
-						value={birthday}
-						disabled
-					/>
-				</div>
+			{/* Card Wrapper */}
+			<Card
+				sx={{
+					maxWidth: 600,
+					width: "100%",
+					borderRadius: "10px",
+					boxShadow: 3,
+				}}
+			>
+				<CardContent>
+					<Typography
+						variant="h5"
+						align="center"
+						gutterBottom
+						sx={{ fontWeight: 600 }}
+					>
+						User Profile
+					</Typography>
 
-				<div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "100%" }}
-						label="Address"
-						variant="outlined"
-						value={location}
-						onChange={(e) => setLocation(e.target.value)}
-					/>
-				</div>
+					<form onSubmit={submitHandler} className="space-y-4">
+						<Grid container spacing={2}>
+							{/* First Name, Middle Name, Last Name */}
+							<Grid item xs={12} sm={4}>
+								<TextField
+									fullWidth
+									label="First Name"
+									variant="outlined"
+									value={name}
+									required
+									onChange={(e) => setName(e.target.value)}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<TextField
+									fullWidth
+									label="Middle Name"
+									variant="outlined"
+									value={middlename}
+									required
+									onChange={(e) =>
+										setMiddleName(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<TextField
+									fullWidth
+									label="Last Name"
+									variant="outlined"
+									value={lastname}
+									required
+									onChange={(e) =>
+										setLastName(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
 
-				<div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "50%" }}
-						label="Phone Number"
-						variant="outlined"
-						value={phoneNum}
-						onChange={(e) => setPhoneNum(e.target.value)}
-					/>
-					<TextField
-						sx={{ display: "flex", width: "50%" }}
-						label="Email Address"
-						variant="outlined"
-						value={email}
-						disabled
-						onChange={(e) => setEmail(e.target.value)}
-					/>
-				</div>
+							{/* Suffix, Birthday */}
+							<Grid item xs={12} sm={4}>
+								<TextField
+									fullWidth
+									label="Suffix"
+									variant="outlined"
+									value={suffix}
+									onChange={(e) => setSuffix(e.target.value)}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={4}>
+								<TextField
+									fullWidth
+									label="Birthday"
+									variant="outlined"
+									value={birthday}
+									disabled
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
 
-				{/* <div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "100%" }}
-						label="Password"
-						variant="outlined"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-					/>
-				</div>
-				<div
-					style={{
-						width: "100%",
-						display: "flex",
-						flexDirection: "row",
-						gap: "10px",
-						marginBottom: "20px",
-					}}
-				>
-					<TextField
-						sx={{ display: "flex", width: "100%" }}
-						label="Confirm Password"
-						variant="outlined"
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-					/>
-				</div> */}
-				<div className="mb-3">
-					<Button className="btn-secondary" type="submit">
-						UPDATE
-					</Button>
-				</div>
-			</form>
+							{/* Address */}
+							<Grid item xs={12}>
+								<TextField
+									fullWidth
+									label="Address"
+									variant="outlined"
+									value={location}
+									onChange={(e) =>
+										setLocation(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+
+							{/* Phone Number, Email Address */}
+							<Grid item xs={12} sm={6}>
+								<TextField
+									fullWidth
+									label="Phone Number"
+									variant="outlined"
+									value={phoneNum}
+									onChange={(e) =>
+										setPhoneNum(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={6}>
+								<TextField
+									fullWidth
+									label="Email Address"
+									variant="outlined"
+									value={email}
+									disabled
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+
+							{/* Password and Confirm Password */}
+							<Grid item xs={12} sm={6}>
+								<TextField
+									fullWidth
+									label="New Password"
+									variant="outlined"
+									type="password"
+									value={password}
+									onChange={(e) =>
+										setPassword(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={6}>
+								<TextField
+									fullWidth
+									label="Confirm Password"
+									variant="outlined"
+									type="password"
+									value={confirmPassword}
+									onChange={(e) =>
+										setConfirmPassword(e.target.value)
+									}
+									sx={{
+										"& .MuiOutlinedInput-root": {
+											borderRadius: "8px",
+										},
+									}}
+								/>
+							</Grid>
+						</Grid>
+
+						{/* Submit Button */}
+						<div className="mt-6 flex justify-center">
+							<Button
+								variant="contained"
+								color="primary"
+								type="submit"
+								disabled={loadingUpdate}
+								sx={{
+									padding: "10px 20px",
+									borderRadius: "20px",
+									boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+									textTransform: "none",
+									"&:hover": {
+										boxShadow:
+											"0px 6px 8px rgba(0, 0, 0, 0.15)",
+									},
+								}}
+							>
+								{loadingUpdate ? "Updating..." : "Update"}
+							</Button>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

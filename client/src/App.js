@@ -44,6 +44,8 @@ import CustomizeRequestScreen from "./screens/CustomizeRequestScreen";
 
 import Navigation from "./components/Navigation";
 import AdminNavigation from "./components/AdminNavigation";
+import CreateProduct from "./screens/CreateProduct";
+import SalesReport from "./screens/SalesReport";
 
 function App() {
 	const { state, dispatch: ctxDispatch } = useContext(Store);
@@ -221,6 +223,14 @@ function App() {
 								}
 							/>
 							<Route
+								path="/admin/sales"
+								element={
+									<AdminRoute>
+										<SalesReport />
+									</AdminRoute>
+								}
+							/>
+							<Route
 								path="/admin/products"
 								element={
 									<AdminRoute>
@@ -233,6 +243,14 @@ function App() {
 								element={
 									<AdminRoute>
 										<ProductEditScreen />
+									</AdminRoute>
+								}
+							/>
+							<Route
+								path="/admin/product/create"
+								element={
+									<AdminRoute>
+										<CreateProduct />
 									</AdminRoute>
 								}
 							/>

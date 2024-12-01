@@ -47,6 +47,14 @@ const reducer = (state, action) => {
 	}
 };
 
+function reverseArr(input) {
+	var ret = new Array();
+	for (var i = input.length - 1; i >= 0; i--) {
+		ret.push(input[i]);
+	}
+	return ret;
+}
+
 function ProductListScreen() {
 	const [
 		{
@@ -104,22 +112,22 @@ function ProductListScreen() {
 	const createHandler = async () => {
 		if (window.confirm("Are You Sure To Create?")) {
 			try {
-				dispatch({ type: "CREATE_REQUEST" });
+				// dispatch({ type: "CREATE_REQUEST" });
 
-				const data = await RequestHandler.handleRequest(
-					"post",
-					"products",
-					{},
-					{
-						headers: {
-							Authorization: `Bearer ${userInfo.token}`,
-						},
-					}
-				);
+				// const data = await RequestHandler.handleRequest(
+				// 	"post",
+				// 	"products",
+				// 	{},
+				// 	{
+				// 		headers: {
+				// 			Authorization: `Bearer ${userInfo.token}`,
+				// 		},
+				// 	}
+				// );
 
-				toast.success("product created successfully");
-				dispatch({ type: "CREATE_SUCCESS" });
-				navigate(`/admin/product/${data.product.id}`);
+				// toast.success("product created successfully");
+				// dispatch({ type: "CREATE_SUCCESS" });
+				navigate(`/admin/product/create`);
 			} catch (error) {
 				toast.error(getError(error));
 				dispatch({
@@ -214,118 +222,117 @@ function ProductListScreen() {
 		setShowArchived(true);
 		fetchArchivedProducts();
 	};
-
 	return (
 		<div
+			className="absolute top-0 left-[20vw] w-[80vw] h-[100vh] p-5 box-border"
 			style={{
-				position: "absolute",
-				top: "0",
-				left: "20vw",
-				width: "80vw",
-				padding: "20px",
-				boxSizing: "border-box",
+				background: "linear-gradient(180deg, #FFFFFF, #F8F8F8)",
+				color: "#333333", // Darker text for better readability
 			}}
 		>
-			<Row>
+			{/* Page Header */}
+			<Row className="mb-4 items-center">
 				<Col>
-					<h1>PRODUCTS</h1>
+					<h1 className="text-3xl font-semibold text-gray-800">
+						PRODUCTS
+					</h1>
 				</Col>
-
-				<Col className="col text-end">
-					<div>
-						<Button type="button" onClick={createHandler}>
+				<Col className="text-end">
+					<div className="flex justify-end space-x-4">
+						<button
+							type="button"
+							className="bg-yellow-400 text-black py-2 px-4 rounded hover:bg-yellow-500 transition duration-200"
+							onClick={createHandler}
+						>
 							Create Product
-						</Button>
-						<Button
-							variant="info"
-							className="ms-2"
+						</button>
+						<button
+							className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-200"
 							onClick={handleShowArchived}
 						>
 							View Archived Products
-						</Button>
+						</button>
 					</div>
 				</Col>
 			</Row>
 
-			{loadingCreate && <LoadingBox></LoadingBox>}
-			{loadingDelete && <LoadingBox></LoadingBox>}
-
+			{/* Loading/Error State */}
+			{loadingCreate && <LoadingBox />}
+			{loadingDelete && <LoadingBox />}
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
 				<MessageBox variant="danger">{error}</MessageBox>
 			) : (
 				<>
-					<table className="table">
-						<thead>
+					{/* Products Table */}
+					<table className="w-full text-left border border-gray-300 text-gray-800">
+						<thead className="bg-gray-100 text-gray-700">
 							<tr>
-								<th>ID</th>
-								<th>NAME</th>
-								<th>PRICE</th>
-								<th>CATEGORY</th>
-								<th>BRAND</th>
-								<th
-									style={{
-										display: "flex",
-										justifyContent: "center",
-									}}
-								>
+								<th className="px-4 py-2">ID</th>
+								<th className="px-4 py-2">NAME</th>
+								<th className="px-4 py-2">PRICE</th>
+								<th className="px-4 py-2">CATEGORY</th>
+								<th className="px-4 py-2 text-center">
 									ACTIONS
 								</th>
 							</tr>
 						</thead>
-
 						<tbody>
-							{products.map((product) => (
-								<tr key={product.id}>
-									<td>{product.id}</td>
-									<td>{product.name}</td>
-									<td>{product.price}</td>
-									<td>{product.category}</td>
-									<td>{product.brand}</td>
-									<td>
-										<div
-											style={{
-												display: "flex",
-												justifyContent: "space-evenly",
-											}}
+							{reverseArr(products).map((product) => (
+								<tr
+									key={product.id}
+									className="hover:bg-gray-200 transition cursor-pointer"
+								>
+									<td className="px-4 py-2">{product.id}</td>
+									<td className="px-4 py-2">
+										{product.name}
+									</td>
+									<td className="px-4 py-2">
+										₱ {product.price.toFixed(2)}
+									</td>
+									<td className="px-4 py-2">
+										{product.category}
+									</td>
+
+									<td className="px-4 py-2 flex justify-center space-x-2">
+										<button
+											type="button"
+											className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition duration-200 shadow-md"
+											onClick={() =>
+												navigate(
+													`/admin/product/${product.id}`
+												)
+											}
 										>
-											<Button
-												type="button"
-												variant="outline-warning"
-												onClick={() =>
-													navigate(
-														`/admin/product/${product.id}`
-													)
-												}
-											>
-												EDIT
-											</Button>
-											<Button
-												type="button"
-												variant="outline-danger"
-												onClick={() =>
-													archiveHandler(product)
-												}
-											>
-												ARCHIVE
-											</Button>
-										</div>
+											Edit
+										</button>
+										<button
+											type="button"
+											className="bg-gray-500 text-white py-1 px-3 rounded hover:bg-gray-600 transition duration-200 shadow-md"
+											onClick={() =>
+												archiveHandler(product)
+											}
+										>
+											Archive
+										</button>
 									</td>
 								</tr>
 							))}
 						</tbody>
 					</table>
-					<div>
+
+					{/* Pagination */}
+					<div className="mt-4 flex justify-center space-x-2">
 						{[...Array(pages).keys()].map((x) => (
 							<Link
-								className={
-									x + 1 === Number(pages)
-										? "btn tex-bold"
-										: "btn"
-								}
 								key={x + 1}
 								to={`/admin/products?page=${x + 1}`}
+								className={`px-4 py-2 rounded text-gray-800 ${
+									x + 1 === Number(pages)
+										? "bg-yellow-500 text-black"
+										: "bg-gray-200 text-gray-600 hover:bg-gray-300"
+								} transition duration-200`}
 							>
 								{x + 1}
 							</Link>
@@ -333,55 +340,68 @@ function ProductListScreen() {
 					</div>
 				</>
 			)}
+
+			{/* Archived Products Modal */}
 			<Modal
 				show={showArchived}
 				onHide={() => setShowArchived(false)}
 				size="lg"
+				className="text-gray-800"
 			>
-				<Modal.Header closeButton>
+				<Modal.Header closeButton className="bg-gray-100 text-gray-800">
 					<Modal.Title>Archived Products</Modal.Title>
 				</Modal.Header>
-				<Modal.Body>
+				<Modal.Body className="bg-white">
 					{loadingArchived ? (
 						<LoadingBox />
 					) : archivedProducts.length === 0 ? (
 						<MessageBox>No archived products found</MessageBox>
 					) : (
-						<table className="table">
-							<thead>
+						<table className="w-full text-left border border-gray-300 text-gray-800">
+							<thead className="bg-gray-100 text-gray-700">
 								<tr>
-									<th>ID</th>
-									<th>NAME</th>
-									<th>PRICE</th>
-									<th>ACTIONS</th>
+									<th className="px-4 py-2">ID</th>
+									<th className="px-4 py-2">NAME</th>
+									<th className="px-4 py-2">PRICE</th>
+									<th className="px-4 py-2 text-center">
+										ACTIONS
+									</th>
 								</tr>
 							</thead>
 							<tbody>
 								{archivedProducts.map((product) => (
-									<tr key={product.id}>
-										<td>{product.id}</td>
-										<td>{product.name}</td>
-										<td>{product.price}</td>
-										<td>
-											<Button
+									<tr
+										key={product.id}
+										className="hover:bg-gray-50 transition cursor-pointer"
+									>
+										<td className="px-4 py-2">
+											{product.id}
+										</td>
+										<td className="px-4 py-2">
+											{product.name}
+										</td>
+										<td className="px-4 py-2">
+											${product.price.toFixed(2)}
+										</td>
+										<td className="px-4 py-2 flex justify-center space-x-2">
+											<button
 												type="button"
-												variant="success"
+												className="bg-green-400 text-white py-1 px-3 rounded shadow hover:bg-green-500 hover:shadow-lg transition duration-200"
 												onClick={() =>
 													restoreHandler(product)
 												}
 											>
 												Restore
-											</Button>
-											<Button
+											</button>
+											<button
 												type="button"
-												variant="danger"
-												className="ms-2"
+												className="bg-red-400 text-white py-1 px-3 rounded shadow hover:bg-red-500 hover:shadow-lg transition duration-200"
 												onClick={() =>
 													deleteHandler(product)
 												}
 											>
 												Delete
-											</Button>
+											</button>
 										</td>
 									</tr>
 								))}
@@ -389,9 +409,10 @@ function ProductListScreen() {
 						</table>
 					)}
 				</Modal.Body>
-				<Modal.Footer>
+				<Modal.Footer className="bg-gray-100">
 					<Button
 						variant="secondary"
+						className="bg-gray-200 hover:bg-gray-300 transition duration-200"
 						onClick={() => setShowArchived(false)}
 					>
 						Close

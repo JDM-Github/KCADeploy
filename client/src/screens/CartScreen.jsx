@@ -1,14 +1,8 @@
 import React, { useContext } from "react";
 import { Store } from "../Store";
 import { Helmet } from "react-helmet-async";
-import Row from "react-bootstrap/esm/Row";
-import Col from "react-bootstrap/esm/Col";
-import MessageBox from "../components/MessageBox";
 import { Link, useNavigate } from "react-router-dom";
-import ListGroup from "react-bootstrap/ListGroup";
-import Button from "react-bootstrap/esm/Button";
-import Card from "react-bootstrap/Card";
-import axios from "axios";
+import { ListGroup, Button, Card } from "react-bootstrap";
 import RequestHandler from "../functions/RequestHandler";
 
 function CartScreen() {
@@ -17,69 +11,75 @@ function CartScreen() {
 	const {
 		cart: { cartItems },
 	} = state;
-	const { userInfo } = state;
+
 	const updateCartHandler = async (item, quantity) => {
 		const data = await RequestHandler.handleRequest(
 			"get",
 			`products/${item.id}`
 		);
-		if (data.countInStock < quantity) {
-			window.alert("SORRY. PRODUCT IS OUT OF STOCK");
-			return;
-		}
-
 		ctxDispatch({
 			type: "CART_ADD_ITEM",
 			payload: { ...item, quantity },
 		});
 	};
+
 	const removeItemHandler = (item) => {
 		ctxDispatch({ type: "CART_REMOVE_ITEM", payload: item });
 	};
+
 	const checkoutHandler = () => {
 		navigate("/signin?redirect=/shipping");
 	};
 
 	return (
-		<div>
+		<div className="bg-gray-100 pb-3">
 			<Helmet>
 				<title>Shopping Cart</title>
 			</Helmet>
-			<h1>Shopping Bag</h1>
-			<Row>
-				<Col md={8}>
-					{cartItems.length === 0 ? (
-						<MessageBox>
-							CART IS EMPTY <Link to="/search">Go To Shop</Link>
-						</MessageBox>
-					) : (
-						<ListGroup>
-							{cartItems.map((item) => (
-								<ListGroup.Item key={item.id}>
-									<Row className="align-items-center">
-										{/* IMAGE     IMAGE     IMAGE */}
-										<Col md={4}>
-											<img
-												src={item.image}
-												alt={item.name}
-												className="img-fluid rounded img-thumbnail"
-											></img>{" "}
-											<Link
-												to={`/product/${item.slug}`}
-												style={{
-													textDecoration: "none",
-													color: "Black",
-													fontWeight: "bold",
-												}}
-											>
-												{item.name}
-											</Link>
-										</Col>
+			<h1 className="text-2xl font-semibold text-center text-gray-800 py-4">
+				Shopping Bag
+			</h1>
 
-										{/* ITEM COUNT    ITEM COUNT    ITEM COUNT*/}
-										<Col md={3} className="ItemCount">
+			{/* Cart Items Section */}
+			<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+				{cartItems.length === 0 ? (
+					<div className="text-center py-8">
+						<p className="text-lg text-gray-700 mb-4">
+							Your cart is empty
+						</p>
+						<Link
+							to="/search"
+							className="text-blue-600 hover:text-blue-800 transition-colors font-semibold"
+						>
+							Go To Shop
+						</Link>
+					</div>
+				) : (
+					<div className="lg:grid lg:grid-cols-2 lg:gap-6 gap-4">
+						{/* Left Column: Cart Items */}
+						<div className="space-y-3">
+							{cartItems.map((item) => (
+								<div
+									key={item.id}
+									className="bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+								>
+									<div className="flex items-center space-x-3">
+										<img
+											src={item.image}
+											alt={item.name}
+											className="w-16 h-16 object-cover rounded-md"
+										/>
+										<Link
+											to={`/product/${item.slug}`}
+											className="text-sm font-medium text-gray-800 hover:text-blue-600 transition-colors"
+										>
+											{item.name}
+										</Link>
+									</div>
+									<div className="flex items-center justify-between mt-3">
+										<div className="flex items-center space-x-3">
 											<Button
-												variant="light"
+												variant="outline-secondary"
 												disabled={item.quantity === 1}
 												onClick={() =>
 													updateCartHandler(
@@ -87,13 +87,15 @@ function CartScreen() {
 														item.quantity - 1
 													)
 												}
+												className="px-3 py-2 rounded-full transition-colors hover:bg-gray-100"
 											>
-												<i className="fas fa-minus-circle"></i>
-												{/*MINUS ITEM*/}
+												<i className="fas fa-minus-circle text-gray-700"></i>
 											</Button>
-											<span>{item.quantity}</span>
+											<span className="text-sm font-semibold">
+												{item.quantity}
+											</span>
 											<Button
-												variant="light"
+												variant="outline-secondary"
 												disabled={
 													item.quantity ===
 													item.countInStock
@@ -104,104 +106,74 @@ function CartScreen() {
 														item.quantity + 1
 													)
 												}
+												className="px-3 py-2 rounded-full transition-colors hover:bg-gray-100"
 											>
-												<i className="fas fa-plus-circle"></i>
-												{/*ADD ITEM*/}
+												<i className="fas fa-plus-circle text-gray-700"></i>
 											</Button>
-										</Col>
-
-										{/* ITEM PRICE    ITEM PRICE    ITEM PRICE  */}
-										<Col
-											className="ItemPrice"
-											style={{
-												alignItems: "center",
-												height: "10vh",
-												backgroundColor:
-													"rgba(120, 255, 102, 0.54)",
-												borderRadius: "8px",
-											}}
-											md={3}
-										>
+										</div>
+										<div className="text-sm font-semibold text-green-600">
 											₱
 											{(
 												item.price * item.quantity
 											).toFixed(2)}
-										</Col>
-
-										{/* DELETE ITEM     DELETE ITEM      DELETE ITEM */}
-										<Col md={2} className="ItemDelete">
-											<Button
-												onClick={() =>
-													removeItemHandler(item)
-												}
-												variant="light"
-											>
-												<i className="fas fa-trash"></i>{" "}
-												{/*DELETE ITEM*/}
-											</Button>
-										</Col>
-									</Row>
-								</ListGroup.Item>
-							))}
-						</ListGroup>
-					)}
-				</Col>
-				<Col md={4}>
-					<Card
-						style={{
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Card.Body>
-							<ListGroup variant="flush">
-								<ListGroup.Item>
-									<h3>
-										Subtotal (
-										{cartItems.reduce(
-											(a, c) => a + c.quantity,
-											0
-										)}{" "}
-										item/s): ₱
-										{cartItems
-											.reduce(
-												(a, c) =>
-													a + c.price * c.quantity,
-												0
-											)
-											.toFixed(2)}
-									</h3>
-								</ListGroup.Item>
-
-								<ListGroup.Item
-									style={{
-										display: "flex",
-										justifyContent: "center",
-										marginTop: "10px",
-									}}
-								>
-									<div className="d-grid">
-										<button
-											className="fancy"
-											type="button"
-											onClick={checkoutHandler}
-											disabled={cartItems.length === 0}
+										</div>
+										<Button
+											onClick={() =>
+												removeItemHandler(item)
+											}
+											variant="outline-danger"
+											className="text-red-600 hover:bg-red-100 transition-all"
 										>
-											<span className="top-key"></span>
-											<span className="text">
-												PROCEED TO CHECK OUT
-											</span>
-											<span className="bottom-key-1"></span>
-											<span className="bottom-key-2"></span>
-										</button>
+											<i className="fas fa-trash-alt"></i>
+										</Button>
 									</div>
-								</ListGroup.Item>
-							</ListGroup>
-						</Card.Body>
-					</Card>
-				</Col>
-			</Row>
+								</div>
+							))}
+						</div>
+
+						{/* Right Column: Cart Summary */}
+						<div className="lg:mt-0">
+							<Card className="shadow-md rounded-lg">
+								<Card.Body className="px-4 py-3">
+									<ListGroup variant="flush">
+										<ListGroup.Item className="bg-gray-200 border-b-2 border-gray-300">
+											<h3 className="text-lg font-semibold text-gray-700">
+												Subtotal (
+												{cartItems.reduce(
+													(a, c) => a + c.quantity,
+													0
+												)}{" "}
+												item/s): ₱
+												{cartItems
+													.reduce(
+														(a, c) =>
+															a +
+															c.price *
+																c.quantity,
+														0
+													)
+													.toFixed(2)}
+											</h3>
+										</ListGroup.Item>
+										<ListGroup.Item className="flex justify-center mt-6">
+											<button
+												className="w-full py-2 px-5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200"
+												type="button"
+												onClick={checkoutHandler}
+												disabled={
+													cartItems.length === 0
+												}
+											>
+												PROCEED TO CHECKOUT
+											</button>
+										</ListGroup.Item>
+									</ListGroup>
+								</Card.Body>
+							</Card>
+						</div>
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }

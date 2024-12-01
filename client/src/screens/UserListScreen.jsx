@@ -94,69 +94,60 @@ function UserListScreen() {
 	};
 
 	return (
-		<div
-			style={{
-				position: "absolute",
-				top: "0",
-				left: "20vw",
-				width: "80vw",
-				padding: "20px",
-				boxSizing: "border-box",
-			}}
-		>
+		<div className="absolute top-0 left-[20vw] w-[80vw] p-5 box-border bg-white text-gray-800">
 			<Helmet>
 				<title>USERS</title>
 			</Helmet>
-			<h1>Users</h1>
-			{loadingDelete && <LoadingBox></LoadingBox>}
+			<h1 className="text-3xl font-semibold text-gray-800">USERS</h1>
+			{loadingDelete && <LoadingBox />}
 
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
 				<MessageBox variant="danger">{error}</MessageBox>
 			) : (
-				<table className="table">
-					<thead>
+				<table className="w-full text-left border border-gray-300 text-gray-800">
+					<thead className="bg-gray-100 text-gray-700">
 						<tr>
-							<th>USER'S ID</th>
-							<th>NAME</th>
-							<th>EMAIL</th>
-							<th>IS ADMIN</th>
-							<th>ACTIONS</th>
+							<th className="px-4 py-2">USER'S ID</th>
+							<th className="px-4 py-2">NAME</th>
+							<th className="px-4 py-2">EMAIL</th>
+							<th className="px-4 py-2">IS ADMIN</th>
+							<th className="px-4 py-2 text-center">ACTIONS</th>
 						</tr>
 					</thead>
 					<tbody>
 						{users.map((user) => (
-							<tr key={user.id}>
-								<td>{user.id}</td>
-								<td>{user.name}</td>
-								<td>{user.email}</td>
-								<td>{user.isAdmin ? "Admin" : "Not Admin"}</td>
-								<td>
-									<div
-										style={{
-											display: "flex",
-											justifyContent: "space-evenly",
-										}}
-									>
-										<Button
+							<tr
+								key={user.id}
+								className="hover:bg-gray-200 transition cursor-pointer"
+							>
+								<td className="px-4 py-2">{user.id}</td>
+								<td className="px-4 py-2">{user.name}</td>
+								<td className="px-4 py-2">{user.email}</td>
+								<td className="px-4 py-2">
+									{user.isAdmin ? "Admin" : "Not Admin"}
+								</td>
+								<td className="px-4 py-2 flex justify-center space-x-2">
+									<div className="flex justify-evenly space-x-2">
+										<button
 											type="button"
-											variant="outline-warning"
+											className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition duration-200 shadow"
 											onClick={() =>
 												navigate(
 													`/admin/user/${user.id}`
 												)
 											}
 										>
-											EDIT
-										</Button>
-										<Button
+											Edit
+										</button>
+										<button
 											type="button"
-											variant="outline-danger"
+											className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition duration-200 shadow"
 											onClick={() => deleteHandler(user)}
 										>
-											DELETE
-										</Button>
+											Delete
+										</button>
 									</div>
 								</td>
 							</tr>

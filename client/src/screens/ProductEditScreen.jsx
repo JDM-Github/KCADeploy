@@ -1,16 +1,11 @@
 import React, { useContext, useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { Store } from "../Store";
 import { getError } from "../utils";
-import Container from "react-bootstrap/Container";
-import ListGroup from "react-bootstrap/ListGroup";
-import Form from "react-bootstrap/Form";
 import { Helmet } from "react-helmet-async";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
-import Button from "react-bootstrap/Button";
 import RequestHandler from "../functions/RequestHandler";
 const reducer = (state, action) => {
 	switch (action.type) {
@@ -57,7 +52,6 @@ function ProductEditScreen() {
 		});
 
 	const [name, setName] = useState("");
-	const [slug, setSlug] = useState("");
 	const [price, setPrice] = useState("");
 	const [image, setImage] = useState("");
 	const [images, setImages] = useState([]);
@@ -76,7 +70,6 @@ function ProductEditScreen() {
 				);
 
 				setName(data.name);
-				setSlug(data.slug);
 				setPrice(data.price);
 				setImage(data.image);
 				setImages(data.images ?? []);
@@ -105,7 +98,6 @@ function ProductEditScreen() {
 				{
 					id: productId,
 					name,
-					slug,
 					price,
 					image,
 					images,
@@ -163,145 +155,181 @@ function ProductEditScreen() {
 	};
 
 	return (
-		<Container className="small-container">
+		<div className="absolute top-[10px] left-[30vw] w-[60vw] mx-auto p-6 bg-white rounded-lg shadow-md">
 			<Helmet>
-				<title>Edit Product ${productId}</title>
+				<title>Edit Product: {name}</title>
 			</Helmet>
-			<h1>Edit Product {productId}</h1>
+			<h1 className="text-2xl font-bold mb-6 text-gray-800">
+				Edit Product: {name}
+			</h1>
 
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
-				<MessageBox></MessageBox>
+				<MessageBox variant="danger">{error}</MessageBox>
 			) : (
-				<Form onSubmit={submitHandler}>
-					<Form.Group className="mb-3" controlId="name">
-						<Form.Label>Name</Form.Label>
-						<Form.Control
+				<form onSubmit={submitHandler} className="space-y-4">
+					<div>
+						<label
+							htmlFor="name"
+							className="block text-gray-700 font-medium"
+						>
+							Name
+						</label>
+						<input
+							id="name"
+							type="text"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 							required
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-					</Form.Group>
+					</div>
 
-					<Form.Group className="mb-3" controlId="slug">
-						<Form.Label>Slug</Form.Label>
-						<Form.Control
-							value={slug}
-							onChange={(e) => setSlug(e.target.value)}
-							required
-						/>
-					</Form.Group>
-
-					<Form.Group className="mb-3" controlId="price">
-						<Form.Label>Price</Form.Label>
-						<Form.Control
+					<div>
+						<label
+							htmlFor="price"
+							className="block text-gray-700 font-medium"
+						>
+							Price
+						</label>
+						<input
+							id="price"
+							type="number"
 							value={price}
-							onChange={(e) => setPrice(e.target.value)}
+							onChange={(e) =>
+								setPrice(
+									e.target.value >= 100 ? e.target.value : 100
+								)
+							}
+							min="100"
+							step="0.01"
 							required
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-					</Form.Group>
+					</div>
 
-					<Form.Group className="mb-3" controlId="image">
-						<Form.Label>Image</Form.Label>
-						<Form.Control
-							value={image}
-							onChange={(e) => setImage(e.target.value)}
-							readOnly
-						/>
-					</Form.Group>
-
-					<Form.Group className="mb-3" controlId="imageFile">
-						<Form.Label>Upload Image</Form.Label>
-						<Form.Control
+					<div>
+						<label
+							htmlFor="imageFile"
+							className="block text-gray-700 font-medium"
+						>
+							Upload Image
+						</label>
+						<input
+							id="imageFile"
 							type="file"
 							onChange={uploadFileHandler}
+							className="w-full px-4 py-2 border rounded-lg"
 						/>
-						{loadingUpload && <LoadingBox></LoadingBox>}
-					</Form.Group>
+						{loadingUpload && <LoadingBox />}
+					</div>
 
-					<Form.Group className="mb-3" controlId="additionalImage">
-						<Form.Label>Additional Images</Form.Label>
+					<div>
+						<label
+							htmlFor="additionalImage"
+							className="block text-gray-700 font-medium"
+						>
+							Additional Images
+						</label>
 						{images && images.length === 0 && (
 							<MessageBox>No Other Images Yet</MessageBox>
 						)}
-						<ListGroup>
+						<ul className="space-y-2">
 							{images.map((x) => (
-								<ListGroup.Item
+								<li
 									key={x}
-									style={{ display: "flex" }}
+									className="flex items-center justify-between border rounded-lg p-2 bg-gray-50"
 								>
-									<Form.Control
-										style={{ width: "90%" }}
+									<input
+										type="text"
 										value={x}
 										readOnly
+										className="w-full px-2 py-1 border-none bg-transparent focus:outline-none"
 									/>
-									<Button
-										variant="light"
+									<button
+										type="button"
 										onClick={() => deleteFileHandler(x)}
+										className="ml-2 text-red-500 hover:text-red-700"
 									>
 										<i className="fa fa-times-circle"></i>
-									</Button>
-								</ListGroup.Item>
+									</button>
+								</li>
 							))}
-						</ListGroup>
-
-						<Form.Group
-							className="mb-3"
-							controlId="additionalImageFile"
-						>
-							<Form.Label>Upload Additional Image</Form.Label>
-							<Form.Control
+						</ul>
+						<div className="mt-4">
+							<label
+								htmlFor="additionalImageFile"
+								className="block text-gray-700 font-medium"
+							>
+								Upload Additional Image
+							</label>
+							<input
+								id="additionalImageFile"
 								type="file"
 								onChange={(e) => uploadFileHandler(e, true)}
+								className="w-full px-4 py-2 border rounded-lg"
 							/>
-							{loadingUpload && <LoadingBox></LoadingBox>}
-						</Form.Group>
-					</Form.Group>
+							{loadingUpload && <LoadingBox />}
+						</div>
+					</div>
 
-					<Form.Group className="mb-3" controlId="category">
-						<Form.Label>Category</Form.Label>
-						<Form.Control
+					<div>
+						<label
+							htmlFor="category"
+							className="block text-gray-700 font-medium"
+						>
+							Category
+						</label>
+						<input
+							id="category"
+							type="text"
 							value={category}
 							onChange={(e) => setCategory(e.target.value)}
 							required
+							placeholder="Enter the product category"
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-					</Form.Group>
+					</div>
 
-					<Form.Group className="mb-3" controlId="brand">
-						<Form.Label>Brand</Form.Label>
-						<Form.Control
-							value={brand}
-							onChange={(e) => setBrand(e.target.value)}
-							required
-						/>
-					</Form.Group>
-
-					{/* <Form.Group className="mb-3" controlId="countInStock">
-						<Form.Label>Count In Stock</Form.Label>
-						<Form.Control
-							value={countInStock}
-							onChange={(e) => setCountInStock(e.target.value)}
-							required
-						/>
-					</Form.Group> */}
-
-					<Form.Group className="mb-3" controlId="description">
-						<Form.Label>Description</Form.Label>
-						<Form.Control
+					<div>
+						<label
+							htmlFor="description"
+							className="block text-gray-700 font-medium"
+						>
+							Description (max 180 characters)
+						</label>
+						<textarea
+							id="description"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
+							maxLength="180"
 							required
+							rows="4"
+							placeholder="Enter a detailed description (max 180 characters)"
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
-					</Form.Group>
-
-					<div className="mb-3">
-						<Button type="submit">UPDATE</Button>
-						{loadingUpdate && <LoadingBox></LoadingBox>}
 					</div>
-				</Form>
+
+					<div className="flex justify-end items-center space-x-4 mt-6">
+						<button
+							type="button"
+							className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
+							onClick={() => navigate("/admin/products")}
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
+						>
+							Create
+						</button>
+						{loadingUpdate && <LoadingBox />}
+					</div>
+				</form>
 			)}
-		</Container>
+		</div>
 	);
 }
 

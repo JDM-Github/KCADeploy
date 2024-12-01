@@ -13,67 +13,77 @@ export default function AdminNavigation({ userInfo, signoutHandler }) {
 	const isActive = (path) => {
 		return location.pathname === path ? "active" : "";
 	};
+
 	return (
 		<>
-			<div className="admin-dashboard">
-				<img src={logo} alt="Logo" />
-				<div className="admin-top">
-					{userInfo.isAdmin ? "ADMIN" : "RIDER"}
+			<div
+				className="min-h-screen fixed flex flex-col justify-between items-center p-6 w-[20vw]"
+				style={{
+					background: "linear-gradient(180deg, #1a1a1a, #333333)",
+					color: "#FFD700",
+				}}
+			>
+				{/* Logo Section */}
+				<div className="flex flex-col items-center w-full">
+					<img src={logo} alt="Logo" className="w-48 h-48 mb-4" />
+					<div className="text-2xl font-bold uppercase">
+						{userInfo.isAdmin ? "Admin" : "Rider"}
+					</div>
 				</div>
 
-				{userInfo.isAdmin ? (
-					<>
-						<Link
-							className={`nav-link ${isActive(
-								"/admin/dashboard"
-							)}`}
-							to="/signin"
-						>
-							<div className="admin-buttons">DASHBOARD</div>
-						</Link>
+				{/* Navigation Links */}
+				<div className="flex flex-col w-full space-y-4 mt-10">
+					{userInfo.isAdmin && (
+						<>
+							<Link
+								className="no-underline block text-center py-2 px-4 bg-gray-800 text-yellow-300 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+								to="/admin/dashboard"
+							>
+								Dashboard
+							</Link>
 
-						<Link
-							className={`nav-link ${isActive(
-								"/admin/products"
-							)}`}
-							to="/admin/products"
-						>
-							<div className="admin-buttons">PRODUCT LIST</div>
-						</Link>
+							<Link
+								className="no-underline block text-center py-2 px-4 bg-gray-800 text-yellow-300 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+								to="/admin/sales"
+							>
+								Sales Report
+							</Link>
 
-						<Link
-							className={`nav-link ${isActive("/admin/users")}`}
-							to="/admin/users"
-						>
-							<div className="admin-buttons">USER LIST</div>
-						</Link>
-					</>
-				) : null}
+							<Link
+								className="no-underline block text-center py-2 px-4 bg-gray-800 text-yellow-300 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+								to="/admin/products"
+							>
+								Product List
+							</Link>
 
-				<Link
-					className={`nav-link ${isActive("/admin/orders")}`}
-					to="/admin/orders"
-				>
-					<div className="admin-buttons">ORDER LIST</div>
-				</Link>
+							<Link
+								className="no-underline block text-center py-2 px-4 bg-gray-800 text-yellow-300 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+								to="/admin/users"
+							>
+								User List
+							</Link>
+						</>
+					)}
+					<Link
+						className="no-underline block text-center py-2 px-4 bg-gray-800 text-yellow-300 rounded-lg hover:bg-yellow-400 hover:text-black transition"
+						to="/admin/orders"
+					>
+						Order List
+					</Link>
 
+					{/* SalesReport */}
+				</div>
+
+				{/* Sign Out Button */}
 				<button
-					className="admin-buttons"
-					style={{ position: "absolute", bottom: "10px" }}
+					className="w-full py-2 px-4 bg-gray-700 text-yellow-200 rounded-lg hover:bg-red-600 hover:text-white transition mt-auto"
 					onClick={signoutHandler}
+					style={{ position: "relative", bottom: "0" }}
 				>
-					<i
-						className="fas fa-sign-out-alt"
-						style={{ marginRight: "5px" }}
-					></i>
-					SIGN OUT
+					<i className="fas fa-sign-out-alt mr-2"></i> Sign Out
 				</button>
 			</div>
-			{userInfo.isAdmin ? (
-				<AdminChatScreen userInfo={userInfo} />
-			) : (
-				<ChatScreen userInfo={userInfo} />
-			)}
+			<AdminChatScreen userInfo={userInfo} />
 		</>
 	);
 }

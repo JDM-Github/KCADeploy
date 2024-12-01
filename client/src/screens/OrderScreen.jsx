@@ -277,21 +277,19 @@ function OrderScreen() {
 		setSelectedImage(imageSrc);
 		setShowModal(true);
 	};
-	// async function deliverOrderHandler() {
-	//   try {
-	//     dispatch({type:'DELIVER_REQUEST'})
-	//     const {data} = await RequestHandler.handleRequest("put",
-	//       `orders/${order.id}/deliver`, {},
-	//       {headers: {authorization: `Bearer ${userInfo.token}`}}
-	//     );
 
-	//     dispatch({type:'DELIVER_SUCCESS'})
-	//     toast.success('ORDER IS BEING DELIVERED')
-	//   } catch (err) {
-	//     toast.error(getError(err));
-	//     dispatch({type:'DELIVER_FAIL'})
-	//   }
-	// }
+	function formatDate(date) {
+		const d = new Date(date);
+
+		const year = d.getFullYear();
+		const month = String(d.getMonth() + 1).padStart(2, "0");
+		const day = String(d.getDate()).padStart(2, "0");
+		const hours = String(d.getHours()).padStart(2, "0");
+		const minutes = String(d.getMinutes()).padStart(2, "0");
+		const seconds = String(d.getSeconds()).padStart(2, "0");
+
+		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+	}
 
 	return loading ? (
 		<LoadingBox></LoadingBox>
@@ -299,395 +297,265 @@ function OrderScreen() {
 		<MessageBox variant="danger">{error}</MessageBox>
 	) : (
 		<div
-			style={
+			className={`bg-gray-100 ${
 				userInfo.isAdmin || userInfo.isRider
-					? {
-							position: "absolute",
-							top: "0",
-							left: "20vw",
-							width: "80vw",
-							padding: "20px",
-							boxSizing: "border-box",
-					  }
-					: {}
-			}
+					? "absolute top-0 left-[20vw] w-[80vw] p-6 box-border"
+					: "max-w-7xl mx-auto p-6"
+			}`}
 		>
 			<Helmet>
 				<title>Order: {orderId}</title>
 			</Helmet>
-			<h1 className="my-3">Order ID: {orderId}</h1>
-			<Row>
-				<Col md={8}>
-					{/* FIRST-CARD    FIRST-CARD    FIRST-CARD    FIRST-CARD */}
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>
-								Shipping and Customer Information
-							</Card.Title>
-							<Card.Text>
-								<strong>Name: </strong>
-								{order.shippingAddress.fullName} <br />
-								<strong>Last Name: </strong>
-								{order.shippingAddress.LastName} <br />
-								<strong>Address: </strong>{" "}
-								{order.shippingAddress.address},
-								{order.shippingAddress.city} <br />
-								<strong>Phone Number: </strong>
-								{order.shippingAddress.postalCode}
-							</Card.Text>
-							{order.isDelivered ? (
-								<MessageBox variant="success">
-									Delivered At: {order.deliveredAt}
-								</MessageBox>
-							) : (
-								<MessageBox variant="danger">
-									Parcel Not Delivered
-								</MessageBox>
-							)}
-						</Card.Body>
-					</Card>
+			<h1 className="text-2xl font-semibold my-4">Order ID: {orderId}</h1>
 
-					{/* SECOND-CARD    SECOND-CARD    SECOND-CARD    SECOND-CARD */}
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Payment</Card.Title>
-							<Card.Text>
-								<strong>Method: </strong>
-								{order.paymentMethodName}
-							</Card.Text>
-							{order.isPaid ? (
-								<MessageBox variant="success">
-									Paid At: {order.paidAt}
-								</MessageBox>
-							) : (
-								<MessageBox variant="danger">
-									Not Yet Paid
-								</MessageBox>
-							)}
-						</Card.Body>
-					</Card>
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div className="space-y-6">
+					{/* Shipping and Customer Info Card */}
+					<div className="bg-white shadow-md rounded-lg p-4">
+						<h2 className="text-xl font-semibold mb-3">
+							Shipping and Customer Information
+						</h2>
+						<p>
+							<strong>Name:</strong>{" "}
+							{order.shippingAddress.fullName}
+						</p>
+						<p>
+							<strong>Last Name:</strong>{" "}
+							{order.shippingAddress.LastName}
+						</p>
+						<p>
+							<strong>Address:</strong>{" "}
+							{order.shippingAddress.address},{" "}
+							{order.shippingAddress.city}
+						</p>
+						<p>
+							<strong>Phone Number:</strong>{" "}
+							{order.shippingAddress.postalCode}
+						</p>
+						{order.isDelivered ? (
+							<div className="text-green-600 mt-4">
+								<strong>Delivered At:</strong>{" "}
+								{formatDate(order.deliveredAt)}
+							</div>
+						) : (
+							<div className="text-red-600 mt-4">
+								Parcel Not Delivered
+							</div>
+						)}
+					</div>
 
-					{/* THIRD-CARD    THIRD-CARD    THIRD-CARD    THIRD-CARD */}
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Items</Card.Title>
-							<ListGroup variant="flush">
-								{order.orderItems.map((item) => (
-									<ListGroup.Item key={item.id}>
-										<Row
-											style={{
-												display: "flex",
-												alignItems: "center",
-											}}
-										>
-											<Col md={6}>
-												<img
-													src={item.image}
-													alt={item.name}
-													className="img-fluid rounded img-thumbnail"
-												/>{" "}
-												<Link
-													to={`/product/${item.slug}`}
-													style={{
-														textDecoration: "none",
-														color: "Black",
-													}}
-												>
-													{item.name}
-												</Link>
-											</Col>
+					{/* Payment Info Card */}
+					<div className="bg-white shadow-md rounded-lg p-4">
+						<h2 className="text-xl font-semibold mb-3">Payment</h2>
+						<p>
+							<strong>Method:</strong> {order.paymentMethodName}
+						</p>
+						{order.isPaid ? (
+							<div className="text-green-600 mt-4">
+								Paid At: {formatDate(order.paidAt)}
+							</div>
+						) : (
+							<div className="text-red-600 mt-4">
+								Not Yet Paid
+							</div>
+						)}
+					</div>
 
-											<Col md={3}>
-												<span>{item.quantity}</span>
-											</Col>
-											<Col md={3}>
-												₱{item.price.toFixed(2)}
-											</Col>
-										</Row>
-									</ListGroup.Item>
-								))}
-							</ListGroup>
-						</Card.Body>
-					</Card>
-				</Col>
-
-				<Col md={4}>
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Order Summary</Card.Title>
-							<ListGroup variant="flush">
-								<ListGroup.Item>
-									<Row>
-										<Col>Items</Col>
-										<Col>
-											₱{order.itemsPrice.toFixed(2)}
-										</Col>
-									</Row>
-								</ListGroup.Item>
-
-								<ListGroup.Item>
-									<Row>
-										<Col>Shipping</Col>
-										<Col>
-											₱{order.shippingPrice.toFixed(2)}
-										</Col>
-									</Row>
-								</ListGroup.Item>
-
-								<ListGroup.Item>
-									<Row>
-										<Col>Down Payment</Col>
-										<Col>₱{order.taxPrice.toFixed(2)}</Col>
-									</Row>
-								</ListGroup.Item>
-
-								<ListGroup.Item>
-									<Row>
-										<Col>
-											<strong>Order Total</strong>
-										</Col>
-										<Col>
-											<strong>
-												₱{order.totalPrice.toFixed(2)}
-											</strong>
-										</Col>
-									</Row>
-								</ListGroup.Item>
-
-								{/* {!order.isPaid && ( // this is called a Conditional Rendering
-                    <ListGroup.Item>
-                      {isPending 
-                        ? (<LoadingBox/>)
-                        : (<div>
-                            <PayPalButtons
-                              createOrder={createOrder} // this runs when paypal button is clicked
-                              onApprove={onApprove} // this runs when you have successful payment to update status of the order in the backend
-                              onError={onError} // this runs when there is error in paying of order
-                              > </PayPalButtons>
-                          </div>)
-                      }
-                      {loadingPay && <LoadingBox/>}
-                    </ListGroup.Item>
-                  )}
-                  {userInfo.isAdmin && order.isPaid && !order.isDelivered && (
-                    <ListGroup.Item>
-                      {loadingDeliver && <LoadingBox></LoadingBox>}
-                      <div className="d-grid">
-                        <Button type='Button'
-                          onClick={deliverOrderHandler}>
-                            Deliver Order
-                          </Button>
-                      </div>
-                    </ListGroup.Item>
-                  )} */}
-								{order.isPaid && order.isDelivered && (
-									<ListGroup.Item>
-										<div className="d-grid">
-											<Button
-												type="button"
-												onClick={
-													handleViewTransactionHistory
-												}
+					{/* Items List Card */}
+					<div className="bg-white shadow-md rounded-lg p-4">
+						<h2 className="text-xl font-semibold mb-3">Items</h2>
+						<ul className="space-y-4">
+							{order.orderItems.map((item) => (
+								<li
+									key={item.id}
+									className="flex items-center justify-between space-x-4"
+								>
+									<div className="flex items-center space-x-4">
+										<img
+											src={item.image}
+											alt={item.name}
+											className="w-16 h-16 object-cover rounded-lg"
+										/>
+										{!userInfo.isAdmin &&
+										!userInfo.isRider ? (
+											<Link
+												to={`/product/${item.slug}`}
+												className="text-blue-600 hover:underline"
 											>
-												View Transaction History
-											</Button>
-										</div>
-									</ListGroup.Item>
-								)}
-								{!order.isPaid && (
-									<ListGroup.Item>
-										<div className="d-grid">
-											{userInfo.isRider ? (
-												<Button
-													type="button"
-													onClick={() =>
-														navigate(
-															"/admin/orders"
-														)
-													}
-												>
-													Go to Order List
-												</Button>
-											) : userInfo.isAdmin ? (
-												<Button
-													type="button"
-													onClick={() =>
-														setShowPaymentInfo(true)
-													}
-												>
-													Check Payment Info
-												</Button>
-											) : (
-												<Button
-													type="button"
-													onClick={() =>
-														navigate(
-															"/orderhistory"
-														)
-													}
-												>
-													Check Payment History
-												</Button>
-											)}
-										</div>
-									</ListGroup.Item>
-								)}
+												{item.name}
+											</Link>
+										) : (
+											<span className="text-gray-600">
+												{item.name}
+											</span>
+										)}
+									</div>
+									<div className="flex items-center space-x-8">
+										<span>x{item.quantity}</span>
+										<span>₱{item.price.toFixed(2)}</span>
+									</div>
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
 
-								{userInfo.isAdmin &&
-									showPaymentInfo &&
-									(console.log(
-										"isAdmin is true:",
-										userInfo.isAdmin
-									),
-									(
-										<ListGroup.Item>
-											{/* Show payment reference number and image */}
-											<Card className="mb-3">
-												<Card.Body>
-													<Card.Title>
-														Payment Information
-													</Card.Title>
-													<Card.Text>
-														<strong>
-															Reference Number:
-														</strong>{" "}
-														{order.referenceNumber}{" "}
-														<br />
-														<strong>
-															Proof of Payment:
-														</strong>
-														<br />
-														<img
-															src={`${order.paymentImage}`}
-															alt="Payment Image"
-															style={{
-																maxWidth:
-																	"100px",
-															}}
-															onClick={() =>
-																handleImageClick(
-																	order.paymentImage
-																)
-															}
-														/>
-													</Card.Text>
-													{!order.isPaid ? (
-														<div className="d-grid">
-															{/* Button to confirm payment */}
-															<Button
-																type="button"
-																onClick={
-																	confirmPaymentHandler
-																}
-															>
-																Confirm Payment
-															</Button>
-														</div>
-													) : null}
-												</Card.Body>
-											</Card>
-										</ListGroup.Item>
-									))}
+				<div className="space-y-6">
+					{/* Order Summary Card */}
+					<div className="bg-white shadow-md rounded-lg p-4">
+						<h2 className="text-xl font-semibold mb-3">
+							Order Summary
+						</h2>
+						<ul className="space-y-4">
+							<li className="flex justify-between">
+								<span>Items</span>
+								<span>₱{order.itemsPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between">
+								<span>Shipping</span>
+								<span>₱{order.shippingPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between">
+								<span>Down Payment</span>
+								<span>₱{order.taxPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between font-semibold">
+								<span>Order Total</span>
+								<span>₱{order.totalPrice.toFixed(2)}</span>
+							</li>
+						</ul>
 
-								{userInfo.isRider &&
-									order.isPaid &&
-									!order.isDelivered &&
-									(console.log(
-										"isRider is true:",
-										userInfo.isRider
-									),
-									(
-										<ListGroup.Item>
-											{loadingDeliver && <LoadingBox />}
-											<div className="d-grid">
-												{/* File input for proof of delivery */}
-												<input
-													type="file"
-													onChange={handleImageChange}
-													accept="image/*"
-												/>
-												{loadingUpload && (
-													<LoadingBox />
-												)}{" "}
-												<ListGroup.Item>
-													{/* Show payment reference number and image */}
-													<Card className="mb-3">
-														<Card.Body>
-															<Card.Text>
-																<strong>
-																	Proof of
-																	Delievery:
-																</strong>
-																<br />
-																{proofOfDeliveryImage ? (
-																	<img
-																		src={`${URL.createObjectURL(
-																			proofOfDeliveryImage
-																		)}`}
-																		alt="Payment Image"
-																		style={{
-																			maxWidth:
-																				"100px",
-																		}}
-																		onClick={() =>
-																			handleImageClick(
-																				URL.createObjectURL(
-																					proofOfDeliveryImage
-																				)
-																			)
-																		}
-																	/>
-																) : null}
-															</Card.Text>
-															{!order.isPaid ? (
-																<div className="d-grid">
-																	{/* Button to confirm payment */}
-																	<Button
-																		type="button"
-																		onClick={
-																			confirmPaymentHandler
-																		}
-																	>
-																		Confirm
-																		Payment
-																	</Button>
-																</div>
-															) : null}
-														</Card.Body>
-													</Card>
-												</ListGroup.Item>
-												{/* Loading indicator for the file upload */}
-												<Button
-													type="Button"
-													onClick={
-														deliverOrderHandler
-													}
-													disabled={
-														!proofOfDeliveryImage
-													}
-												>
-													Deliver Order
-												</Button>
-											</div>
-										</ListGroup.Item>
-									))}
-							</ListGroup>
-						</Card.Body>
-					</Card>
-				</Col>
-			</Row>
+						{/* Conditional buttons */}
+						{order.isPaid && order.isDelivered && (
+							<div className="mt-4">
+								<button
+									className="w-full bg-green-500 text-white py-2 rounded-md"
+									onClick={handleViewTransactionHistory}
+								>
+									View Transaction History
+								</button>
+							</div>
+						)}
+
+						{!order.isPaid && (
+							<div className="mt-4">
+								{userInfo.isRider ? (
+									<button
+										className="w-full bg-blue-500 text-white py-2 rounded-md"
+										onClick={() =>
+											navigate("/admin/orders")
+										}
+									>
+										Go to Order List
+									</button>
+								) : userInfo.isAdmin ? (
+									<button
+										className="w-full bg-yellow-500 text-white py-2 rounded-md"
+										onClick={() => setShowPaymentInfo(true)}
+									>
+										Check Payment Info
+									</button>
+								) : (
+									<button
+										className="w-full bg-gray-500 text-white py-2 rounded-md"
+										onClick={() =>
+											navigate("/orderhistory")
+										}
+									>
+										Check Payment History
+									</button>
+								)}
+							</div>
+						)}
+					</div>
+
+					{/* Payment Information Modal */}
+					{userInfo.isAdmin && showPaymentInfo && (
+						<div className="bg-white shadow-md rounded-lg p-5">
+							<h2 className="text-xl font-semibold mb-3">
+								Payment Information
+							</h2>
+							<p>
+								<strong>Reference Number:</strong>{" "}
+								{order.referenceNumber}
+							</p>
+							<p>
+								<strong>Proof of Payment:</strong>
+							</p>
+							<img
+								src={order.paymentImage}
+								alt="Payment Image"
+								className="w-24 h-24 object-cover mb-4"
+								onClick={() =>
+									handleImageClick(order.paymentImage)
+								}
+							/>
+							{!order.isPaid && (
+								<button
+									className="w-full bg-green-500 text-white py-2 rounded-md"
+									onClick={confirmPaymentHandler}
+								>
+									Confirm Payment
+								</button>
+							)}
+						</div>
+					)}
+
+					{/* Delivery Form for Riders */}
+					{userInfo.isRider && order.isPaid && !order.isDelivered && (
+						<div className="bg-white shadow-md rounded-lg p-5">
+							{loadingDeliver && <LoadingBox />}
+							<input
+								type="file"
+								className="block w-full text-sm mt-4"
+								onChange={handleImageChange}
+								accept="image/*"
+							/>
+							{loadingUpload && <LoadingBox />}
+							<div className="mt-4">
+								{proofOfDeliveryImage && (
+									<img
+										src={URL.createObjectURL(
+											proofOfDeliveryImage
+										)}
+										alt="Proof of Delivery"
+										className="w-24 h-24 object-cover mb-4"
+										onClick={() =>
+											handleImageClick(
+												URL.createObjectURL(
+													proofOfDeliveryImage
+												)
+											)
+										}
+									/>
+								)}
+							</div>
+							<button
+								className="w-full bg-blue-500 text-white py-2 rounded-md"
+								onClick={deliverOrderHandler}
+								disabled={!proofOfDeliveryImage}
+							>
+								Deliver Order
+							</button>
+						</div>
+					)}
+				</div>
+			</div>
+
+			{/* Modals */}
 			<Modal show={showModal} onHide={() => setShowModal(false)} centered>
 				<Modal.Header closeButton>
 					<Modal.Title>Receipt</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
 					<img
-						src={`${selectedImage}`}
+						src={selectedImage}
 						alt="Zoomed"
-						className="img-fluid"
+						className="w-full object-contain"
 					/>
 				</Modal.Body>
 			</Modal>
+
 			<Modal
 				show={showTransactionModal}
 				onHide={() => setShowTransactionModal(false)}
@@ -699,36 +567,56 @@ function OrderScreen() {
 				<Modal.Body>
 					<h5>Shipping and Customer Information</h5>
 					<p>
-						<strong>Name:</strong> {transactionDetails.name} <br />
+						<strong>Name:</strong> {transactionDetails.name}
+					</p>
+					<p>
 						<strong>Last Name:</strong>{" "}
-						{transactionDetails.lastName} <br />
-						<strong>Address:</strong> {transactionDetails.address}{" "}
-						<br />
+						{transactionDetails.lastName}
+					</p>
+					<p>
+						<strong>Address:</strong> {transactionDetails.address}
+					</p>
+					<p>
 						<strong>Phone Number:</strong>{" "}
 						{transactionDetails.phone}
 					</p>
 					<p>
 						<strong>Delivered At:</strong>{" "}
-						{transactionDetails.deliveredAt}
+						{formatDate(transactionDetails.deliveredAt)}
 					</p>
+
 					<h5>Payment</h5>
 					<p>
 						<strong>Method:</strong>{" "}
-						{transactionDetails.paymentMethod} <br />
-						<strong>Paid At:</strong> {transactionDetails.paidAt}
+						{transactionDetails.paymentMethod}
 					</p>
+					<p>
+						<strong>Paid At:</strong>{" "}
+						{new Date(transactionDetails.paidAt).toLocaleString(
+							"en-US",
+							{
+								month: "2-digit",
+								day: "2-digit",
+								year: "numeric",
+								hour: "2-digit",
+								minute: "2-digit",
+								second: "2-digit",
+								hour12: false,
+							}
+						)}
+					</p>
+
 					<h5>Proof of Payment</h5>
 					<img
-						src={`${transactionDetails.paymentImage}`}
+						src={transactionDetails.paymentImage}
 						alt="Proof of Payment"
-						style={{ maxWidth: "100px" }}
+						className="w-24 h-24 object-cover"
 					/>
 					<h5>Proof of Delivery</h5>
-
 					<img
-						src={`${transactionDetails.proofOfDeliveryImage}`}
+						src={transactionDetails.proofOfDeliveryImage}
 						alt="Proof of Delivery"
-						style={{ maxWidth: "100px" }}
+						className="w-24 h-24 object-cover"
 					/>
 				</Modal.Body>
 			</Modal>

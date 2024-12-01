@@ -58,9 +58,7 @@ const Review = ({ userInfo, product, setUpdate }) => {
 	const [hasReviewed, setHasReviewed] = useState(false);
 	const [hasOrdered, setHasOrdered] = useState(false);
 
-	useEffect(() => {
-		// checkUserOrder();
-	}, []);
+	useEffect(() => {}, []);
 
 	const handleRatingChange = (e) => {
 		setSelectedRating(Number(e.target.value));
@@ -317,10 +315,7 @@ function ProductScreen() {
 	const navigate = useNavigate();
 	const params = useParams();
 	const { slug } = params;
-	let reviewsRef = useRef();
 
-	const [rating, setRating] = useState(0);
-	const [comment, setComment] = useState("");
 	const [selectedImage, setSelectedImage] = useState("");
 	const [update, setUpdate] = useState(false);
 
@@ -331,7 +326,6 @@ function ProductScreen() {
 			error: "",
 		});
 
-	// const [products, setProducts] = useState([]);
 	useEffect(() => {
 		const fetchData = async () => {
 			dispatch({ type: "FETCH_REQUEST" });
@@ -368,51 +362,12 @@ function ProductScreen() {
 			`products/${product.id}`
 		);
 
-		if (data.countInStock < quantity) {
-			window.alert("SORRY. PRODUCT IS OUT OF STOCK");
-			return;
-		}
-
 		ctxDispatch({
 			type: "CART_ADD_ITEM",
 			payload: { ...product, quantity },
 		});
 		navigate("/cart");
 	};
-
-	// const submitHandler = async (e) => {
-	// 	e.preventDefault();
-
-	// 	if (!comment || !rating) {
-	// 		toast.error("PLEASE ENTER COMMENT AND RATING");
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		const data = await RequestHandler.handleRequest(
-	// 			"post",
-	// 			`products/${product.id}/reviews`,
-	// 			{ rating, comment, name: userInfo.name },
-	// 			{
-	// 				headers: { Authorization: `Bearer ${userInfo.token}` },
-	// 			}
-	// 		);
-	// 		dispatch({ type: "CREATE_SUCCESS" });
-
-	// 		toast.success("Review Submitted Successfully");
-	// 		product.reviews.unshift(data.review);
-	// 		product.numReviews = data.numReviews;
-	// 		product.rating = data.rating;
-	// 		dispatch({ type: "REFRESH_PRODUCT", payload: product });
-	// 		window.scrollTo({
-	// 			behavior: "smooth",
-	// 			top: reviewsRef.current.offsetTop,
-	// 		});
-	// 	} catch (error) {
-	// 		toast.error(getError(error));
-	// 		dispatch({ type: "CREATE_FAIL" });
-	// 	}
-	// };
 
 	return loading ? (
 		<LoadingBox />
@@ -431,7 +386,14 @@ function ProductScreen() {
 					<div className="top-layout">
 						<div className="description-layout">
 							<h4>DESCRIPTION</h4>
-							<div>{product.description}</div>
+							<div
+								dangerouslySetInnerHTML={{
+									__html: product.description.replace(
+										/\n/g,
+										"<br />"
+									),
+								}}
+							/>
 						</div>
 						<div className="product-info-layout">
 							<h2>
@@ -468,13 +430,14 @@ function ProductScreen() {
 					</div>
 					<div className="bot-layout">
 						<div className="products-layout">
-							{[product.image, ...product.images].map((x) => (
-								<img
-									src={x}
-									alt={"product"}
-									onClick={() => setSelectedImage(x)}
-								/>
-							))}
+							{product.images &&
+								[product.image, ...product.images].map((x) => (
+									<img
+										src={x}
+										alt={"product"}
+										onClick={() => setSelectedImage(x)}
+									/>
+								))}
 						</div>
 					</div>
 				</div>

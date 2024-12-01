@@ -1,11 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: "718-font";
+	src: local("718-font"), url("./fonts/718-font.otf") format("opentype");
+}
+
 body {
 	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-		"Helvetica Neue", sans-serif;
+	font-family: "718-font";
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	overflow-x: hidden;
+}
+div,
+input,
+select,
+option,
+a,
+p {
+	font-family: "718-font" !important;
 }
 main {
 	flex: 1;
@@ -109,13 +124,12 @@ button.thumbnail {
 }
 
 .dropdown-item {
-	transition: background-color 0.3s, color 0.3s ease-in;
 	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.384);
 	border-radius: 10px !important;
 }
 .dropdown-item:hover {
-	background-color: #fbff18a3 !important; /* Change the background color on hover */
-	color: #ffffff00;
+	background-color: #3a3939 !important;
+	color: #ffffff;
 }
 .checkout-steps > div {
 	border-bottom: 0.2rem solid gray;

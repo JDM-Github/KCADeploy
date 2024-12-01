@@ -1,4 +1,5 @@
 const express = require("express");
+const moment = require("moment");
 const expressAsyncHandler = require("express-async-handler");
 const multer = require("multer");
 const { v2: cloudinary } = require("cloudinary");
@@ -85,9 +86,10 @@ class ChatRouter {
 	}
 
 	async postUserMessage(req, res) {
-		console.log(req.file);
+		let firstChat = false;
 		let chat = await Chat.findOne({ where: { userId: req.params.id } });
 		if (!chat) {
+			firstChat = true;
 			chat = await Chat.create({ userId: req.params.id, messages: [] });
 		}
 		let imageUrl = null;
@@ -113,6 +115,18 @@ class ChatRouter {
 		};
 		const updatedMessages = [...chat.messages, newMessage];
 		await chat.update({ messages: updatedMessages });
+
+		if (firstChat) {
+			const newMessage = {
+				image: null,
+				text: "Hello! 👋 Welcome to the RYB Official Store. We're your go-to place for premium jerseys and sportswear. How can we assist you today? Please wait while an admin responds to your inquiry.",
+				sender: "admin",
+				user: null,
+				createdAt: Date.now(),
+			};
+			const updatedMessages = [...chat.messages, newMessage];
+			await chat.update({ messages: updatedMessages });
+		}
 		res.send(chat);
 	}
 
@@ -312,29 +326,42 @@ class OrderRouter {
 			isAuth,
 			expressAsyncHandler(this.deleteOrder)
 		);
-
-		// this.router.put(
-		//  "/:id/deliver",
-		//  isAuth,
-		//  this.upload.single("image"),
-		//  expressAsyncHandler(this.uploadProofOfDelivery)
-		// );
+		this.router.post("/getAllSales", expressAsyncHandler(this.getAllSales));
 	}
 
 	async getOrders(req, res) {
-		const orders = await Order.findAll({
-			include: [
-				{
-					model: User,
-					attributes: ["name"],
-				},
-			],
-		});
-
-		res.send(orders);
+		try {
+			const orders = await Order.findAll({
+				include: [
+					{
+						model: User,
+						attributes: ["name"],
+					},
+				],
+				order: [["createdAt", "DESC"]],
+			});
+			res.send(orders);
+		} catch (error) {
+			console.error(error);
+			res.status(500).send({
+				message: "Error fetching orders.",
+				success: false,
+			});
+		}
 	}
 
 	async createOrder(req, res) {
+		let checkOrder = await Order.findOne({
+			where: { referenceNumber: req.body.referenceNumber },
+		});
+
+		if (checkOrder) {
+			res.status(500).send({
+				message: "This reference number is already been used",
+			});
+			return;
+		}
+
 		const newOrder = new Order({
 			orderItems: req.body.orderItems.map((x) => ({
 				...x,
@@ -389,6 +416,53 @@ class OrderRouter {
 		}
 	}
 
+	async getAllSales(req, res) {
+		const { year, month } = req.query;
+
+		try {
+			const startDate = moment(`${year}-${month}-01`)
+				.startOf("month")
+				.toDate();
+			const endDate = moment(`${year}-${month}-01`)
+				.endOf("month")
+				.toDate();
+
+			const orders = await Order.findAll({
+				where: {
+					isPaid: true,
+					createdAt: {
+						[Op.gte]: startDate,
+						[Op.lte]: endDate,
+					},
+				},
+			});
+
+			const productSales = {};
+			orders.forEach((order) => {
+				order.orderItems.forEach((item) => {
+					const productId = item.id;
+					const productName = item.name;
+					const totalSales = item.quantity * item.price;
+
+					if (!productSales[productId]) {
+						productSales[productId] = {
+							name: productName,
+							salesCount: 0,
+							totalSales: 0,
+						};
+					}
+					productSales[productId].salesCount += item.quantity;
+					productSales[productId].totalSales += totalSales;
+				});
+			});
+			const salesReport = Object.values(productSales);
+			return res.send(salesReport);
+		} catch (error) {
+			console.error("Error fetching sales data:", error);
+			return res.status(500).json({ message: "Internal Server Error" });
+		}
+	}
+
 	async deliverOrder(req, res) {
 		let imageUrl;
 		try {
@@ -404,6 +478,14 @@ class OrderRouter {
 			order.proofOfDeliveryImage = imageUrl;
 			order.isDelivered = true;
 			order.deliveredAt = Date.now();
+
+			for (let item of order.orderItems) {
+				const product = await Product.findByPk(item.id);
+				if (product) {
+					product.orderCount += item.quantity;
+					await product.save();
+				}
+			}
 			await order.save();
 
 			const user = await User.findByPk(order.userId);
@@ -614,6 +696,11 @@ class ProductController {
 	routes() {
 		this.router.get("/", this.getProducts);
 		this.router.post("/", isAuth, expressAsyncHandler(this.createProduct));
+		this.router.post(
+			"/create",
+			isAuth,
+			expressAsyncHandler(this.createProductParam)
+		);
 		this.router.get(
 			"/archived",
 			isAuth,
@@ -804,21 +891,58 @@ class ProductController {
 
 	async createProduct(req, res) {
 		const newProduct = new Product({
-			name: "sample name" + Date.now(),
-			slug: "sample-name-" + Date.now(),
-			image: " ",
+			name: "Sample Name",
+			slug: "Sample Name",
+			image: "",
 			images: [],
-			price: 0,
-			category: "sample category",
-			brand: "sample brand",
+			price: 100,
+			category: "",
+			brand: "",
 			countInStock: 0,
 			rating: 0,
 			numReviews: 0,
-			description: "sample description",
+			description: "",
 			isArchived: false,
 		});
 		const product = await newProduct.save();
 		res.send({ message: "Product Created", product });
+	}
+
+	async createProductParam(req, res) {
+		try {
+			const existingProduct = await Product.findOne({
+				where: { name: req.body.name },
+			});
+			if (existingProduct) {
+				return res.status(400).send({
+					message:
+						"Product name already exists. Please choose a different name.",
+				});
+			}
+
+			const newProduct = await Product.create({
+				name: req.body.name,
+				slug: req.body.name.replace(/\s+/g, "-").toLowerCase(), // Generate slug
+				image: req.body.image || "",
+				images: req.body.images.length ? req.body.images : null,
+				price: req.body.price,
+				category: req.body.category,
+				brand: req.body.brand,
+				countInStock: req.body.countInStock || 0,
+				rating: 0,
+				numReviews: 0,
+				description: req.body.description,
+				isArchived: false,
+			});
+
+			res.send({ message: "Product Created", product: newProduct });
+		} catch (error) {
+			console.error("Error creating product:", error);
+			res.status(500).send({
+				message: "Error creating product",
+				error: error.message,
+			});
+		}
 	}
 
 	async getArchivedProducts(req, res) {
@@ -857,7 +981,7 @@ class ProductController {
 		const product = await Product.findByPk(req.params.id);
 		if (product) {
 			product.name = req.body.name;
-			product.slug = req.body.slug;
+			product.slug = req.body.name;
 			product.price = req.body.price;
 			product.image = req.body.image;
 			product.images = req.body.images;

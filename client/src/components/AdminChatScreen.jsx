@@ -237,7 +237,7 @@ export default function AdminChatScreen({ userInfo }) {
 									{selectedUserChat.User.name}
 								</div>
 
-								<div className="message-container">
+								<div className="message-container z-100">
 									{selectedUserChat.messages.map(
 										(msg, index) => (
 											<>

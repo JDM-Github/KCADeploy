@@ -16,43 +16,42 @@ const TopAccount = () => {
 
 const TopDashboard = ({ summary }) => {
 	return (
-		<div className="top-dashboard">
-			<Card className="top-card users">
-				<Card.Body>
-					<Card.Title>
+		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+			<div className="bg-gray-800 text-yellow-300 rounded-lg shadow-md p-4">
+				<div className="flex flex-col justify-between h-full">
+					<div className="text-4xl font-bold">
 						{summary.users && summary.users[0]
 							? summary.users[0].numUsers
 							: 0}
-					</Card.Title>
-					<Card.Text>USERS</Card.Text>
-				</Card.Body>
-			</Card>
+					</div>
+					<div className="text-sm">USERS</div>
+				</div>
+			</div>
 
-			<Card className="top-card orders">
-				<Card.Body>
-					<Card.Title>
+			<div className="bg-gray-800 text-yellow-300 rounded-lg shadow-md p-4">
+				<div className="flex flex-col justify-between h-full">
+					<div className="text-4xl font-bold">
 						{summary.orders && summary.users[0]
 							? summary.orders[0].numOrders
 							: 0}
-					</Card.Title>
-					<Card.Text>ORDERS</Card.Text>
-				</Card.Body>
-			</Card>
+					</div>
+					<div className="text-sm">ORDERS</div>
+				</div>
+			</div>
 
-			<Card className="top-card top-sales">
-				<Card.Body>
-					<Card.Title>
-						{" "}
+			<div className="bg-gray-800 text-yellow-300 rounded-lg shadow-md p-4">
+				<div className="flex flex-col justify-between h-full">
+					<div className="text-4xl font-bold">
 						₱{" "}
 						{summary.orders && summary.users[0]
 							? summary.orders[0].totalSales
 								? summary.orders[0].totalSales.toFixed(2)
 								: 0
 							: 0}
-					</Card.Title>
-					<Card.Text>TOTAL SALES</Card.Text>
-				</Card.Body>
-			</Card>
+					</div>
+					<div className="text-sm">TOTAL SALES</div>
+				</div>
+			</div>
 		</div>
 	);
 };
@@ -258,7 +257,6 @@ const SalesChart = ({ summary }) => {
 					boxSizing: "border-box",
 				}}
 			>
-				{/* Print Button */}
 				<div className="print-sales" onClick={handlePrint}>
 					PRINT
 				</div>
@@ -294,37 +292,49 @@ const CategoriesChart = ({ summary }) => {
 			summary.productCategories.length === 0 ? (
 				<MessageBox>No Categories</MessageBox>
 			) : (
-				<div className="category-dashboard">
-					{summary.productCategories.slice(0, 6).map((category) => {
-						const percentage = totalProducts
-							? (category.count / totalProducts) * 100
-							: 0;
-						return (
-							<div className="category-container">
-								<span>{category.category}</span>
-								<span>
-									<strong>{percentage.toFixed(1)}%</strong>
-								</span>
-								<div className="bar">
+				<div className="flex justify-center">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-[60vw]">
+						{summary.productCategories
+							.slice(0, 6)
+							.map((category) => {
+								const percentage = totalProducts
+									? (category.count / totalProducts) * 100
+									: 0;
+
+								return (
 									<div
-										style={{
-											backgroundColor: "#F15A4A",
-											height: "100%",
-											width: `${percentage}%`,
-										}}
-									/>
-									<div
-										style={{
-											flex: 1,
-											backgroundColor: "#333",
-											height: "100%",
-											width: `${100 - percentage}%`,
-										}}
-									/>
-								</div>
-							</div>
-						);
-					})}
+										key={category.category}
+										className="bg-white p-4 rounded-lg shadow-md flex flex-col space-y-3"
+									>
+										<div className="flex justify-between">
+											<span className="font-semibold text-lg text-gray-800">
+												{category.category}
+											</span>
+											<span className="font-bold text-xl text-gray-900">
+												{percentage.toFixed(1)}%
+											</span>
+										</div>
+
+										<div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden">
+											<div
+												className="h-full bg-red-500"
+												style={{
+													width: `${percentage}%`,
+												}}
+											/>
+											<div
+												className="h-full bg-gray-700"
+												style={{
+													width: `${
+														100 - percentage
+													}%`,
+												}}
+											/>
+										</div>
+									</div>
+								);
+							})}
+					</div>
 				</div>
 			)}
 		</>
@@ -380,10 +390,13 @@ function DashboardScreen() {
 			) : error ? (
 				<MessageBox variant="danger">{error}</MessageBox>
 			) : (
-				<div className="dashboard-container">
+				<div className="dashboard-container bg-gradient-to-r from-white-800 via-gray-900 to-black p-8 shadow-xl">
 					<TopAccount />
+
 					<TopDashboard summary={summary} />
+
 					<SalesChart summary={summary} />
+
 					<CategoriesChart summary={summary} />
 				</div>
 			)}

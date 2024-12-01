@@ -20,7 +20,7 @@ const {
 	sequelize,
 } = require("./routers");
 
-const { Chat, User, Product } = require("./models2.js");
+const { Product } = require("./models2.js");
 
 const { userRouter } = require("./userRouter.js");
 const app = express();
@@ -37,25 +37,6 @@ if (DEVELOPMENT) {
 	);
 } else {
 	app.use(cors());
-}
-
-function getTransporter() {
-	const transporter = nodemailer.createTransport({
-		service: "gmail",
-		auth: {
-			user: "kcaligam@ccc.edu.ph",
-			pass: "qmcm hhlk pohs vyrh",
-		},
-	});
-	transporter.verify(function (error, success) {
-		if (error) {
-			``;
-			console.log("Error with transporter", error);
-		} else {
-			console.log("Nodemailer is ready to send emails.");
-		}
-	});
-	return transporter;
 }
 
 cron.schedule("0 0 * * *", async () => {

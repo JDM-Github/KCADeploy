@@ -35,11 +35,6 @@ function Products(props) {
 			"get",
 			`products/${item.id}`
 		);
-		if (data.countInStock < quantity) {
-			window.alert("SORRY. PRODUCT IS OUT OF STOCK");
-			return;
-		}
-
 		ctxDispatch({
 			type: "CART_ADD_ITEM",
 			payload: { ...item, quantity },

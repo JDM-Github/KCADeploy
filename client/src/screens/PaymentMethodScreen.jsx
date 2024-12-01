@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { Form, Button, Spinner } from "react-bootstrap";
 import { Store } from "../Store";
 import { useNavigate } from "react-router-dom";
-import qrCodeImage from "../../src/images/qr_code.jpg";
+import qrCodeImage from "../../src/images/paymentIcon.jpeg";
 import RequestHandler from "../functions/RequestHandler";
 
 import { Card, Col, Row } from "react-bootstrap";
@@ -106,7 +106,6 @@ function PaymentMethodScreen() {
 			if (!cart.paymentImage) {
 				throw new Error("No payment image available.");
 			}
-
 			const data = await RequestHandler.handleRequest(
 				"post",
 				"orders",
@@ -237,131 +236,128 @@ function PaymentMethodScreen() {
 	};
 
 	return (
-		<div>
+		<div className="bg-gray-100 min-h-screen p-6">
+			<Helmet>
+				<title>Payment Method</title>
+			</Helmet>
 			<CheckoutSteps step1 step2 step3 />
-			<div className="container small-container">
-				<Helmet>
-					<title>Payment Method</title>
-				</Helmet>
-				<h1 style={{ marginTop: "20px" }}>Payment Method</h1>
-				<Form onSubmit={submitHandler}>
-					<div className="mb-3">
-						<Form.Check
-							type="radio"
-							label="GCash"
-							id="GCash"
-							value="GCash"
-							checked={paymentMethodName === "GCash"}
-							onChange={() => setPaymentMethod("GCash")}
+			<div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+				<h1 className="text-2xl font-semibold mb-6 text-center">
+					Payment Method
+				</h1>
+				<form onSubmit={submitHandler} className="space-y-6">
+					{/* Payment Method */}
+					<div>
+						<label className="flex items-center">
+							<input
+								type="radio"
+								name="paymentMethod"
+								id="GCash"
+								value="GCash"
+								checked={paymentMethodName === "GCash"}
+								onChange={() => setPaymentMethod("GCash")}
+								className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500"
+							/>
+							<span className="text-gray-700">GCash</span>
+						</label>
+					</div>
+
+					{/* GCash Reference Number */}
+					<div>
+						<label
+							htmlFor="referenceNumber"
+							className="block text-sm font-medium text-gray-700"
+						>
+							GCash Reference Number
+						</label>
+						<input
+							type="text"
+							id="referenceNumber"
+							placeholder="Enter GCash reference number"
+							value={referenceNumber}
+							onChange={(e) =>
+								setReferenceNumber(
+									formatReferenceNumber(e.target.value)
+								)
+							}
+							required
+							maxLength={16}
+							className="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
 						/>
 					</div>
-					<div className="mb-3">
-						<Form.Group controlId="referenceNumber">
-							<Form.Label>GCash Reference Number</Form.Label>
-							<Form.Control
-								type="text"
-								placeholder="Enter GCash reference number"
-								value={referenceNumber}
-								onChange={(e) =>
-									setReferenceNumber(
-										formatReferenceNumber(e.target.value)
-									)
-								}
-								required
-								maxLength={16} // Set max length to account for spaces
-							/>
-						</Form.Group>
+
+					{/* Payment Screenshot */}
+					<div>
+						<label
+							htmlFor="paymentImage"
+							className="block text-sm font-medium text-gray-700"
+						>
+							Upload Payment Screenshot
+						</label>
+						<input
+							type="file"
+							id="paymentImage"
+							onChange={handleFileUpload}
+							accept="image/*"
+							required
+							className="mt-2 block w-full p-3 border border-gray-300 rounded-lg cursor-pointer focus:ring-blue-500 focus:border-blue-500"
+						/>
 					</div>
-					<div className="mb-3">
-						<Form.Group controlId="paymentImage">
-							<Form.Label>Upload Payment Screenshot</Form.Label>
-							<Form.Control
-								type="file"
-								onChange={handleFileUpload}
-								accept="image/*"
-								required
-							/>
-						</Form.Group>
+
+					{/* Error Message */}
+					{error && (
+						<div className="text-red-500 text-sm">{error}</div>
+					)}
+
+					{/* Order Summary */}
+					<div className="mt-8 bg-gray-50 p-6 rounded-lg shadow">
+						<h2 className="text-lg font-semibold mb-4">
+							Order Summary
+						</h2>
+						<ul className="space-y-2">
+							<li className="flex justify-between">
+								<span>Items</span>
+								<span>₱{cart.itemsPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between">
+								<span>Shipping</span>
+								<span>₱{cart.shippingPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between">
+								<span>Down Payment</span>
+								<span>₱{cart.taxPrice.toFixed(2)}</span>
+							</li>
+							<li className="flex justify-between font-semibold">
+								<span>Order Total</span>
+								<span>₱{cart?.totalPrice?.toFixed(2)}</span>
+							</li>
+						</ul>
+
+						{/* QR Code */}
+						<img
+							src={qrCodeImage}
+							alt="QR Code"
+							className="fixed top-24 right-6 w-[20vw] h-auto rounded-lg shadow-lg"
+						/>
 					</div>
-					{error && <div style={{ color: "red" }}>{error}</div>}
-					<div className="mb-3">
-						<Button
+
+					{/* Continue Button */}
+					<div className="text-center">
+						<button
 							type="submit"
-							variant="primary"
 							disabled={isLoading}
+							className={`w-full py-3 bg-yellow-500 text-black font-semibold rounded-lg hover:bg-yellow-600 transition ${
+								isLoading && "opacity-50 cursor-not-allowed"
+							}`}
 						>
 							{isLoading ? (
-								<Spinner
-									as="span"
-									animation="border"
-									size="sm"
-								/>
+								<span className="loader border-t-transparent border-4 border-black rounded-full h-5 w-5 inline-block animate-spin"></span>
 							) : (
 								"Continue"
 							)}
-						</Button>
+						</button>
 					</div>
-				</Form>
-				<Col
-					style={{
-						position: "absolute",
-						top: "150px",
-						left: "80px",
-						width: "20%", // Adjust size as needed
-						height: "60%", // Adjust size as needed
-					}}
-				>
-					<Card>
-						<Card.Body>
-							<Card.Title>Order Summary</Card.Title>
-							<ListGroup variant="flush">
-								<ListGroup.Item>
-									<Row>
-										<Col>Items</Col>
-										<Col>₱{cart.itemsPrice.toFixed(2)}</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>Shipping</Col>
-										<Col>
-											₱{cart.shippingPrice.toFixed(2)}
-										</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>Down Payment</Col>
-										<Col>₱{cart.taxPrice.toFixed(2)}</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>
-											<strong>Order Total</strong>
-										</Col>
-										<Col>
-											<strong>
-												₱{cart?.totalPrice?.toFixed(2)}
-											</strong>
-										</Col>
-									</Row>
-								</ListGroup.Item>
-							</ListGroup>
-						</Card.Body>
-					</Card>
-				</Col>
-				<img
-					src={qrCodeImage}
-					alt="QR Code"
-					style={{
-						position: "absolute",
-						top: "170px",
-						right: "120px",
-						width: "20%", // Adjust size as needed
-						height: "60%", // Adjust size as needed
-					}}
-				/>
+				</form>
 			</div>
 		</div>
 	);

@@ -51,72 +51,88 @@ export default function OrderHistoryScreen() {
 	}, [userInfo]);
 
 	return (
-		<div>
+		<div className="p-6 max-w-7xl mx-auto bg-gray-199">
 			<Helmet>
 				<title>Order History</title>
 			</Helmet>
 
-			<h1>Order History</h1>
+			<h1 className="text-2xl font-semibold mb-6">Order History</h1>
+
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
-				<MessageBox variant="danger">{error}</MessageBox>
+				<MessageBox variant="danger" className="mb-4">
+					{error}
+				</MessageBox>
 			) : (
-				<table className="table">
-					<thead>
-						<tr>
-							<th>ID</th>
-							<th>DATE OF TRANSACTION</th>
-							<th>TOTAL</th>
-							<th>PAID AT</th>
-							<th>DELIVERED</th>
-							<th>ACTIONS</th>
-						</tr>
-					</thead>
-					<tbody>
-						{orders.map((order) => (
-							<tr key={order.id}>
-								<td>
-									{order.id}
-									{/*ID*/}
-								</td>
-								<td>
-									{order?.createdAt?.substring(0, 10)}
-									{/*NAME*/}
-								</td>
-								<td>
-									{order.totalPrice.toFixed(2)}
-									{/*TOTAL*/}
-								</td>
-								<td>
-									{/*PAID*/}
-									{order.isPaid
-										? order.paidAt.substring(0, 10)
-										: "Not Yet Paid"}
-								</td>
-								<td>
-									{" "}
-									{/*DELIVERED*/}
-									{order.isDelivered
-										? order.deliveredAt.substring(0, 10)
-										: "Not Yet Delivered"}
-								</td>
-								<td>
-									{/*ACTIONS*/}
-									<Button
-										type="button"
-										variant="light"
-										onClick={() => {
-											navigate(`/order/${order.id}`);
-										}}
-									>
-										Details
-									</Button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<div className="bg-white p-6 rounded-lg shadow-lg">
+					<div className="overflow-x-auto">
+						<table className="min-w-full table-auto">
+							<thead>
+								<tr className="border-b">
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										ID
+									</th>
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										Date of Transaction
+									</th>
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										Total
+									</th>
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										Paid At
+									</th>
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										Delivered
+									</th>
+									<th className="px-4 py-2 text-left text-sm font-medium text-gray-700">
+										Actions
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{orders.map((order) => (
+									<tr key={order.id} className="border-b">
+										<td className="px-4 py-2 text-sm text-gray-600">
+											{order.id}
+										</td>
+										<td className="px-4 py-2 text-sm text-gray-600">
+											{order?.createdAt?.substring(0, 10)}
+										</td>
+										<td className="px-4 py-2 text-sm text-gray-600">
+											₱{order.totalPrice.toFixed(2)}
+										</td>
+										<td className="px-4 py-2 text-sm text-gray-600">
+											{order.isPaid
+												? order.paidAt.substring(0, 10)
+												: "Not Yet Paid"}
+										</td>
+										<td className="px-4 py-2 text-sm text-gray-600">
+											{order.isDelivered
+												? order.deliveredAt.substring(
+														0,
+														10
+												  )
+												: "Not Yet Delivered"}
+										</td>
+										<td className="px-4 py-2 text-sm text-gray-600">
+											<button
+												onClick={() =>
+													navigate(
+														`/order/${order.id}`
+													)
+												}
+												className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+											>
+												Details
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</div>
 			)}
 		</div>
 	);

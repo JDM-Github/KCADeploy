@@ -1,19 +1,15 @@
 import React, { useEffect, useReducer, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import getError from "../utils";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet-async";
 import { Col, Row } from "react-bootstrap";
 import Button from "@mui/material/Button";
-import Rating from "../components/Rating";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
 import Products from "../components/Products";
 import LinkContainer from "react-router-bootstrap/LinkContainer";
 import RequestHandler from "../functions/RequestHandler.js";
-
-import "./SearchScreen.css";
 
 const reducer = (state, action) => {
 	switch (action.type) {
@@ -86,12 +82,17 @@ function SearchScreen() {
 			error: "",
 		});
 
+	const [searchQuery, setSearchQuery] = useState(query);
+	const handleSearch = () => {
+		navigate(getFilterUrl({ query: searchQuery }));
+	};
+
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
 				const data = await RequestHandler.handleRequest(
 					"get",
-					`products/search?page=${page}&query=${query}&category=${category}&price=${price}&rating=${rating}&order=${order}`
+					`products/search?page=${page}&query=${searchQuery}&category=${category}&price=${price}&rating=${rating}&order=${order}&highest`
 				);
 				dispatch({ type: "FETCH_SUCCESS", payload: data });
 			} catch (error) {
@@ -102,7 +103,7 @@ function SearchScreen() {
 			}
 		};
 		fetchData();
-	}, [category, error, order, page, price, query, rating]);
+	}, [category, error, order, page, price, searchQuery, rating]);
 
 	const [categories, setCategories] = useState([]);
 	useEffect(() => {
@@ -130,162 +131,217 @@ function SearchScreen() {
 		const filterRating = filter.rating || rating;
 		const filterPrice = filter.price || price;
 		const sortOrder = filter.order || order;
+
 		return `${
 			skipPathname ? "" : "/search?"
 		}category=${filterCategory}&query=${filterQuery}&price=${filterPrice}&rating=${filterRating}&order=${sortOrder}&page=${filterPage}`;
 	};
 
 	return (
-		<div className="search" style={{ display: "flex" }}>
+		<div className="mx-auto px-1 py-6 w-[80vw]">
 			<Helmet>
 				<title>Search Products</title>
 			</Helmet>
 
-			<div className="sorter">
-				<div className="text-end">
-					<div className="text-end-text">Sort By </div>
-					<select
-						className="sort-select"
-						value={order}
-						onChange={(e) => {
-							navigate(
-								getFilterUrl({
-									order: e.target.value,
-								})
-							);
-						}}
-					>
-						<option value="newest">Newest Arrivals</option>
-						<option value="lowest">Price: Low to High</option>
-						<option value="highest">Price: High to Low</option>
-					</select>
-				</div>
-
-				<div className="text-end">
-					<div className="text-end-text">Category </div>
-					<select
-						className="sort-select"
-						value={category}
-						onChange={(e) => {
-							const selectedCategory = e.target.value;
-							window.location.href = getFilterUrl({
-								category: selectedCategory,
-							});
-						}}
-					>
-						<option value="all">Category</option>
-						{categories.map((c) => (
-							<option key={c.category} value={c.category}>
-								{c.category}
-							</option>
-						))}
-					</select>
-				</div>
-
-				<div className="text-end">
-					<div className="text-end-text">Price </div>
-					<select
-						className="sort-select"
-						value={price}
-						onChange={(e) => {
-							const selectedPrice = e.target.value;
-							window.location.href = getFilterUrl({
-								price: selectedPrice,
-							});
-						}}
-					>
-						<option value="all">Price</option>
-						{prices.map((p) => (
-							<option key={p.value} value={p.value}>
-								{p.name}
-							</option>
-						))}
-					</select>
-				</div>
-			</div>
-
-			<div>
-				<div
-					className="result-text"
-					style={{
-						display: "flex",
-						marginBottom: "10px",
-						textAlign: "left",
-						justifyContent: "left",
-						alignItems: "center",
-					}}
+			<Row className="lg:space-x-2">
+				{/* Filters Section */}
+				<Col
+					md={3}
+					className="p-4 bg-white shadow-lg rounded-lg lg:ms-8 mb-4 min-height-auto"
 				>
-					<div style={{ display: "flex" }}>
-						{countProducts === 0 ? "No" : countProducts} Results
-						<strong>
-							{query !== "all" && " : " + query}
-							{category !== "all" && " : " + category}
-							{price !== "all" && " : Price " + price}
-							{rating !== "all" && " : Rating" + rating + " & up"}
-						</strong>
-						{query !== "all" ||
-						category !== "all" ||
-						rating !== "all" ||
-						price !== "all" ? (
-							<div
-								style={{
-									marginLeft: "2px",
-									padding: "0 5px",
-									cursor: "pointer",
-								}}
-								variant="outlined"
-								onClick={() => navigate("/search")}
+					<div className="mb-6">
+						<div className="flex items-center gap-2 mb-4">
+							<input
+								type="text"
+								placeholder="Search..."
+								className="flex-1 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+								onChange={(e) => setSearchQuery(e.target.value)}
+							/>
+							<button
+								className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700 focus:outline-none"
+								onClick={handleSearch}
 							>
-								<i className="fas fa-times-circle" />
-							</div>
-						) : null}
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									fill="none"
+									viewBox="0 0 24 24"
+									strokeWidth="2"
+									stroke="currentColor"
+									className="w-5 h-5"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
+									/>
+								</svg>
+							</button>
+						</div>
+
+						<h3 className="text-lg font-semibold">Category</h3>
+						<div className="flex flex-col gap-2">
+							<Link
+								to={getFilterUrl({ category: "all" })}
+								className={`${
+									category === "all" ? "font-bold" : ""
+								} text-white bg-gray-800 rounded px-4 py-2 text-center no-underline`}
+							>
+								Any
+							</Link>
+							{categories
+								.filter((c) =>
+									c.category
+										.toLowerCase()
+										.includes(searchQuery.toLowerCase())
+								)
+								.map((c) => (
+									<Link
+										key={c.category}
+										to={getFilterUrl({
+											category: c.category,
+										})}
+										className={`${
+											c.category === category
+												? "font-bold"
+												: ""
+										} text-white bg-gray-800 rounded px-4 py-2 text-center no-underline`}
+									>
+										{c.category}
+									</Link>
+								))}
+						</div>
 					</div>
-				</div>
-				{!loading && products && products.length === 0 && (
-					<MessageBox style={{ width: "100%" }}>
-						No Product Found
-					</MessageBox>
-				)}
-				<div>
+
+					<div>
+						<h3 className="text-lg font-semibold mb-4">Price</h3>
+						<div className="flex flex-col gap-2">
+							<Link
+								to={getFilterUrl({ price: "all" })}
+								className={`${
+									price === "all" ? "font-bold" : ""
+								} text-white bg-gray-800 rounded px-4 py-2 text-center no-underline`}
+							>
+								Any
+							</Link>
+							{prices.map((p) => (
+								<Link
+									key={p.value}
+									to={getFilterUrl({ price: p.value })}
+									className={`${
+										p.value === price ? "font-bold" : ""
+									} text-white bg-gray-800 rounded px-4 py-2 text-center no-underline`}
+								>
+									{p.name}
+								</Link>
+							))}
+						</div>
+					</div>
+				</Col>
+
+				{/* Products Section */}
+				<Col
+					md={8}
+					className="bg-white p-6 rounded-lg shadow-lg px-5 w-max-[600px]"
+				>
 					{loading ? (
 						<LoadingBox />
 					) : error ? (
 						<MessageBox variant="danger">{error}</MessageBox>
 					) : (
-						<div className="products">
-							{products.slice(0, 8).map((product) => (
-								<Products product={product}></Products>
-							))}
-						</div>
-					)}
-				</div>
+						<>
+							<div className="flex justify-between items-center mb-4">
+								{/* Results Info */}
+								<div>
+									<span className="text-mobile font-semibold">
+										{countProducts === 0
+											? "No Results"
+											: `${countProducts} Results`}
+									</span>
+									<strong>
+										{query !== "all" && `: ${query}`}
+										{category !== "all" && ` : ${category}`}
+										{price !== "all" && ` : Price ${price}`}
+										{rating !== "all" &&
+											` : Rating ${rating} & up`}
+									</strong>
+								</div>
 
-				<div style={{ marginBottom: "20px" }}>
-					{[...Array(pages).keys()].map((x) => (
-						<LinkContainer
-							key={x + 1}
-							className="mx-1"
-							to={{
-								pathname: "/search",
-								search: getFilterUrl({ page: x + 1 }, true),
-							}}
-						>
-							<Button
-								variant="contained"
-								sx={{
-									backgroundColor: "black",
-									marginTop: "20px",
-								}}
-								className={
-									Number(page) === x + 1 ? "text-bold" : ""
-								}
-							>
-								{x + 1}
-							</Button>
-						</LinkContainer>
-					))}
-				</div>
-			</div>
+								{/* Sort By */}
+								<div>
+									<select
+										className="border px-4 py-2 rounded-lg text-mobile"
+										value={order}
+										onChange={(e) => {
+											navigate(
+												getFilterUrl({
+													order: e.target.value,
+												})
+											);
+										}}
+									>
+										<option value="newest">
+											Newest Arrivals
+										</option>
+										<option value="lowest">
+											Price: Low to High
+										</option>
+										<option value="highest">
+											Price: High to Low
+										</option>
+									</select>
+								</div>
+							</div>
+
+							{/* Product Listings */}
+							{products.length === 0 ? (
+								<MessageBox>No Products Found</MessageBox>
+							) : (
+								<Row
+									className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto justify-center"
+									style={{ maxWidth: "1200px" }}
+								>
+									{products.map((product) => (
+										<Col
+											key={product.id}
+											className="mx-auto max-w-[280px]"
+											style={{ maxWidth: "350px" }}
+										>
+											<Products product={product} />
+										</Col>
+									))}
+								</Row>
+							)}
+
+							{/* Pagination */}
+							<div className="flex justify-center mt-6">
+								{[...Array(pages).keys()].map((x) => (
+									<LinkContainer
+										key={x + 1}
+										className="mx-2"
+										to={{
+											pathname: "/search",
+											search: getFilterUrl(
+												{ page: x + 1 },
+												true
+											),
+										}}
+									>
+										<button
+											className={`px-4 py-2 rounded-full ${
+												Number(page) === x + 1
+													? "bg-black text-white"
+													: "bg-gray-300 text-black"
+											}`}
+										>
+											{x + 1}
+										</button>
+									</LinkContainer>
+								))}
+							</div>
+						</>
+					)}
+				</Col>
+			</Row>
 		</div>
 	);
 }

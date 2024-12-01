@@ -95,52 +95,102 @@ function UserEditScreen() {
 		}
 	};
 	return (
-		<Container className="small-container">
+		<div
+			style={{
+				position: "absolute",
+				top: "0",
+				left: "20vw",
+				width: "calc(80vw - 20px)", // Adjust width with padding
+				padding: "20px",
+				boxSizing: "border-box",
+			}}
+		>
 			<Helmet>
 				<title>Edit User ${userId}</title>
 			</Helmet>
-			<h1>Edit User Info {userId}</h1>
+			<h1 className="text-lg font-semibold">Edit User Info {userId}</h1>
 
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
-				<MessageBox></MessageBox>
+				<MessageBox />
 			) : (
-				<Form onSubmit={submitHandler}>
-					<Form.Group className="mb-3" controlId="name">
-						<Form.Label>Name</Form.Label>
-						<Form.Control
+				<form onSubmit={submitHandler} className="space-y-4">
+					{/* Name Field */}
+					<div>
+						<label
+							htmlFor="name"
+							className="block text-gray-700 font-medium"
+						>
+							Name
+						</label>
+						<input
+							id="name"
+							type="text"
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 							required
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+							placeholder="Enter user name"
 						/>
-					</Form.Group>
+					</div>
 
-					<Form.Group className="mb-3" controlId="email">
-						<Form.Label>Email</Form.Label>
-						<Form.Control
+					{/* Email Field */}
+					<div>
+						<label
+							htmlFor="email"
+							className="block text-gray-700 font-medium"
+						>
+							Email
+						</label>
+						<input
+							id="email"
+							type="email"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 							required
+							className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+							placeholder="Enter user email"
 						/>
-					</Form.Group>
-
-					<Form.Check
-						className="mb-3"
-						type="checkbox"
-						id="isAdmin"
-						label="Is Admin"
-						checked={isAdmin}
-						onChange={(e) => setIsAdmin(e.target.checked)}
-					/>
-
-					<div className="mb-3">
-						<Button type="submit">UPDATE</Button>
-						{loadingUpdate && <LoadingBox></LoadingBox>}
 					</div>
-				</Form>
+
+					{/* Is Admin Checkbox */}
+					<div className="flex items-center space-x-2">
+						<input
+							id="isAdmin"
+							type="checkbox"
+							checked={isAdmin}
+							onChange={(e) => setIsAdmin(e.target.checked)}
+							className="w-4 h-4 border-gray-300 rounded focus:ring-blue-500"
+						/>
+						<label
+							htmlFor="isAdmin"
+							className="text-gray-700 font-medium"
+						>
+							Is Admin
+						</label>
+					</div>
+
+					{/* Buttons */}
+					<div className="flex justify-end space-x-4 mt-4">
+						<button
+							type="button"
+							onClick={() => navigate("/admin/users")}
+							className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
+						>
+							Update
+						</button>
+					</div>
+					{loadingUpdate && <LoadingBox />}
+				</form>
 			)}
-		</Container>
+		</div>
 	);
 }
 

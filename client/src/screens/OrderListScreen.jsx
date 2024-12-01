@@ -31,6 +31,14 @@ const reducer = (state, action) => {
 	}
 };
 
+function reverseArr(input) {
+	var ret = new Array();
+	for (var i = input.length - 1; i >= 0; i--) {
+		ret.push(input[i]);
+	}
+	return ret;
+}
+
 function OrderListScreen() {
 	const navigate = useNavigate();
 	const { state } = useContext(Store);
@@ -87,82 +95,76 @@ function OrderListScreen() {
 	};
 
 	return (
-		<div
-			style={{
-				position: "absolute",
-				top: "0",
-				left: "20vw",
-				width: "80vw",
-				padding: "20px",
-				boxSizing: "border-box",
-			}}
-		>
+		<div className="absolute top-0 left-[20vw] w-[80vw] p-5 box-border bg-white text-gray-800">
 			<Helmet>
 				<title>Orders</title>
 			</Helmet>
-			<h1>Customer Orders</h1>
-			{loadingDelete && <LoadingBox></LoadingBox>}
+			<h1 className="text-2xl font-bold mb-6">Customer Orders</h1>
+			{loadingDelete && <LoadingBox />}
+
 			{loading ? (
-				<LoadingBox></LoadingBox>
+				<LoadingBox />
 			) : error ? (
-				<MessageBox variant="danger"></MessageBox>
+				<MessageBox variant="danger">{error}</MessageBox>
 			) : (
-				<table className="table">
-					<thead>
+				<table className="w-full text-left border border-gray-300 text-gray-800">
+					<thead className="bg-gray-100 text-gray-700">
 						<tr>
-							<th>ID</th>
-							<th>USER</th>
-							<th>DATE</th>
-							<th>TOTAL</th>
-							<th>PAID</th>
-							<th>STATUS</th>
-							<th>ACTIONS</th>
+							<th className="px-4 py-2">ID</th>
+							<th className="px-4 py-2">USER</th>
+							<th className="px-4 py-2">DATE</th>
+							<th className="px-4 py-2">TOTAL</th>
+							<th className="px-4 py-2">PAID</th>
+							<th className="px-4 py-2">STATUS</th>
+							<th className="px-4 py-2 text-center">ACTIONS</th>
 						</tr>
 					</thead>
 					<tbody>
 						{orders.map((order) => (
-							<tr key={order.id}>
-								<td>{order.id}</td>
-								<td>
-									{order.user
-										? order.user.name
+							<tr
+								key={order.id}
+								className="hover:bg-gray-200 transition cursor-pointer"
+							>
+								<td className="px-4 py-2">{order.id}</td>
+								<td className="px-4 py-2">
+									{order.User
+										? order.User.name
 										: "DELETED USER"}
 								</td>
-								<td>{order.createdAt.substring(0, 10)}</td>
-								<td>{order.totalPrice.toFixed(2)}</td>
-								<td>
+								<td className="px-4 py-2">
+									{order.createdAt.substring(0, 10)}
+								</td>
+								<td className="px-4 py-2">
+									{order.totalPrice.toFixed(2)}
+								</td>
+								<td className="px-4 py-2">
 									{order.isPaid
 										? order.paidAt.substring(0, 10)
 										: "Not Yet Paid"}
 								</td>
-								<td>
+								<td className="px-4 py-2">
 									{order.isDelivered
 										? order.deliveredAt.substring(0, 10)
 										: "Not Yet Delivered"}
 								</td>
-								<td>
-									<div
-										style={{
-											display: "flex",
-											justifyContent: "space-evenly",
-										}}
-									>
-										<Button
+								<td className="px-4 py-2">
+									<div className="flex justify-evenly space-x-2">
+										<button
 											type="button"
-											variant="outline-warning"
+											className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 transition duration-200 shadow"
 											onClick={() =>
 												navigate(`/order/${order.id}`)
 											}
 										>
-											EDIT
-										</Button>
-										<Button
+											View
+										</button>
+										<button
 											type="button"
-											variant="outline-danger"
+											className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition duration-200 shadow"
 											onClick={() => deleteHandler(order)}
 										>
-											DELETE
-										</Button>
+											Delete
+										</button>
 									</div>
 								</td>
 							</tr>

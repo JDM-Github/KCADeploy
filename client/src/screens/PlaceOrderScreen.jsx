@@ -39,14 +39,16 @@ function PlaceOrderScreen() {
 	} = state;
 
 	const updateCartHandler = async (item, quantity) => {
-		const data = await RequestHandler.handleRequest(
-			"get",
-			`products/${item.id}`
-		);
-		if (data.countInStock < quantity) {
-			window.alert("SORRY. PRODUCT IS OUT OF STOCK");
-			return;
-		}
+		alert(JSON.stringify(cart));
+
+		// const data = await RequestHandler.handleRequest(
+		// 	"get",
+		// 	`products/${item.id}`
+		// );
+		// if (data.countInStock < quantity) {
+		// 	window.alert("SORRY. PRODUCT IS OUT OF STOCK");
+		// 	return;
+		// }
 
 		ctxDispatch({
 			type: "CART_ADD_ITEM",
@@ -62,38 +64,6 @@ function PlaceOrderScreen() {
 	cart.taxPrice = round2(0.5 * (cart.itemsPrice + cart.shippingPrice));
 	cart.totalPrice = cart.itemsPrice + cart.shippingPrice; // + cart.taxPrice;
 
-	// const placeOrderHandler = async () => {
-	//   try{
-	//     dispatch({type: 'CREATE_REQUEST'});
-
-	//     const { data } = await Axios.post('/api/orders',
-	//       {
-	//         orderItems: cart.cartItems,
-	//         shippingAddress: cart.shippingAddress,
-	//         paymentMethodName: cart.paymentMethodName,
-	//         referenceNumber: cart.referenceNumber,
-	//         paymentImage: cart.paymentImage,
-	//         itemsPrice: cart.itemsPrice,
-	//         shippingPrice: cart.shippingPrice,
-	//         taxPrice: cart.taxPrice,
-	//         totalPrice: cart.totalPrice,
-	//       },
-	//       {
-	//         headers: {
-	//           authorization: `Bearer ${userInfo.token}`,
-	//         },
-	//       }
-	//     );
-	//     ctxDispatch({type: 'CART_CLEAR'}); // clears the cart after placing order
-	//     dispatch({type: 'CREATE_SUCCESS'});
-	//     localStorage.removeItem('cartItems');
-	//     navigate(`/order/${data.order.id}`);
-	//   }
-	//   catch(err){
-	//     dispatch({type: 'CREATE_FAIL'});
-	//     toast.error(getError(err));
-	//   }
-	// };
 	const handleImageUpload = async (event) => {
 		const file = event.target.files[0];
 		if (!file) return;
@@ -169,248 +139,159 @@ function PlaceOrderScreen() {
 	}, [cart, navigate]);
 
 	return (
-		<div>
-			<CheckoutSteps step1 step2 step3 step4></CheckoutSteps>
+		<div className="bg-gray-100 min-h-screen p-6">
 			<Helmet>
 				<title>Preview Order</title>
 			</Helmet>
-			<h1 className="my-3">Review Order</h1>
-			<Row>
-				<Col md={8}>
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Shipping</Card.Title>
-							<Card.Text>
-								<strong>Name: </strong>
-								{cart.shippingAddress.fullName}
-								<br />
-								<strong>Last Name: </strong>
-								{cart.shippingAddress.LastName}
-								<br />
-								<strong>Address: </strong>
-								{cart.shippingAddress.address},{" "}
-								{cart.shippingAddress.city} <br />
-								<strong>Phone Number: </strong>
-								{cart.shippingAddress.postalCode}
-							</Card.Text>
-							<Link to="/shipping">
-								<Button
-									variant="outlined"
-									sx={{
-										border: "none",
-										backgroundColor: "#f0c040",
-										color: "black",
-									}}
-								>
-									EDIT
-								</Button>
-							</Link>
-						</Card.Body>
-					</Card>
+			<CheckoutSteps step1 step2 step3 step4 />
 
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Payment</Card.Title>
-							<Card.Text>
-								<strong>Method: </strong>
-								{cart.paymentMethodName} <br />
-								<strong>Reference Number: </strong>
-								{cart.referenceNumber} <br />
-								{cart.paymentImage && (
-									<>
-										<strong>Payment Image: </strong>
-										<br></br>
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				{/* Left Column: Shipping, Payment, and Items */}
+				<div className="space-y-6">
+					{/* Shipping Card */}
+					<div className="bg-white shadow-lg rounded-lg p-6 mb-4">
+						<h2 className="text-xl font-semibold mb-4">Shipping</h2>
+						<p>
+							<strong>Name: </strong>
+							{cart.shippingAddress.fullName}
+							<br />
+							<strong>Last Name: </strong>
+							{cart.shippingAddress.LastName}
+							<br />
+							<strong>Address: </strong>
+							{cart.shippingAddress.address},{" "}
+							{cart.shippingAddress.city}
+							<br />
+							<strong>Phone Number: </strong>
+							{cart.shippingAddress.postalCode}
+						</p>
+						<Link to="/shipping">
+							<button className="mt-4 w-full bg-yellow-500 text-black font-semibold py-2 rounded-lg hover:bg-yellow-600 transition">
+								EDIT
+							</button>
+						</Link>
+					</div>
+
+					{/* Payment Card */}
+					<div className="bg-white shadow-lg rounded-lg p-6 mb-4">
+						<h2 className="text-xl font-semibold mb-4">Payment</h2>
+						<p>
+							<strong>Method: </strong>
+							{cart.paymentMethodName}
+							<br />
+							<strong>Reference Number: </strong>
+							{cart.referenceNumber}
+							<br />
+							{cart.paymentImage && (
+								<>
+									<strong>Payment Image: </strong>
+									<br />
+									<img
+										src={cart.paymentImage}
+										alt="Payment Image"
+										className="w-24 h-auto mt-2"
+									/>
+								</>
+							)}
+						</p>
+						<Link to="/payment">
+							<button className="mt-4 w-full bg-yellow-500 text-black font-semibold py-2 rounded-lg hover:bg-yellow-600 transition">
+								EDIT
+							</button>
+						</Link>
+					</div>
+
+					{/* Items Card */}
+					<div className="bg-white shadow-lg rounded-lg p-6 mb-4">
+						<h2 className="text-xl font-semibold mb-4">Items</h2>
+						<div className="space-y-4">
+							{cart.cartItems.map((item) => (
+								<div
+									key={item.id}
+									className="flex items-center justify-between"
+								>
+									<div className="flex items-center space-x-4">
 										<img
-											src={cart.paymentImage}
-											alt="Payment Image"
-											style={{ maxWidth: "100px" }}
+											src={item.image}
+											alt={item.name}
+											className="w-16 h-16 object-cover rounded-lg"
 										/>
-									</>
-								)}
-							</Card.Text>
-							<Link to="/payment">
-								<Button
-									variant="outlined"
-									sx={{
-										border: "none",
-										backgroundColor: "#f0c040",
-										color: "black",
-									}}
-								>
-									EDIT
-								</Button>
-							</Link>
-						</Card.Body>
-					</Card>
+										<span className="text-sm">
+											{item.name}
+										</span>
+									</div>
 
-					<Card className="mb-3">
-						<Card.Body>
-							<Card.Title>Items</Card.Title>
-							<ListGroup variant="flush">
-								{cart.cartItems.map((item) => (
-									<ListGroup.Item key={item.id} style={{}}>
-										<Row>
-											<Col md={6}>
-												<img
-													src={item.image}
-													alt={item.name}
-													className="img-fluid rounded img-thumbnail"
-												/>{" "}
-												<Typography>
-													{item.name}
-												</Typography>
-											</Col>
-											<div
-												className="card"
-												style={{
-													paddingBottom: "5px",
-													paddingTop: "5px",
-													gap: "5px",
-													display: "flex",
-													alignItems: "center",
-													flexDirection: "row",
-												}}
-											>
-												<Button
-													variant="light"
-													disabled={
-														item.quantity === 1
-													}
-													onClick={() =>
-														updateCartHandler(
-															item,
-															item.quantity - 1
-														)
-													}
-												>
-													<i className="fas fa-minus-circle"></i>
-													{/*MINUS ITEM*/}
-												</Button>
-
-												<Col
-													md={3}
-													style={{
-														display: "flex",
-														justifyContent:
-															"center",
-													}}
-												>
-													{item.quantity}
-												</Col>
-
-												<Button
-													variant="light"
-													disabled={
-														item.quantity ===
-														item.countInStock
-													}
-													onClick={() =>
-														updateCartHandler(
-															item,
-															item.quantity + 1
-														)
-													}
-												>
-													<i className="fas fa-plus-circle"></i>
-													{/*ADD ITEM*/}
-												</Button>
-											</div>
-
-											<Col md={3}>
-												₱
-												{(
-													item.price * item.quantity
-												).toFixed(2)}
-											</Col>
-										</Row>
-									</ListGroup.Item>
-								))}
-							</ListGroup>
-							{/* <Link to="/cart">
-                  <Button
-                    variant="outlined"
-                      sx={{border: "none", backgroundColor:"#f0c040", color:"black"}}>
-                  EDIT
-                  </Button>
-                  </Link> */}
-						</Card.Body>
-					</Card>
-				</Col>
-
-				<Col>
-					<Card>
-						<Card.Body>
-							<Card.Title>Order Summary</Card.Title>
-							<ListGroup variant="flush">
-								<ListGroup.Item>
-									<Row>
-										<Col>Items</Col>
-										<Col>₱{cart.itemsPrice.toFixed(2)}</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>Shipping</Col>
-										<Col>
-											₱{cart.shippingPrice.toFixed(2)}
-										</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>Down Payment</Col>
-										<Col>₱{cart.taxPrice.toFixed(2)}</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item>
-									<Row>
-										<Col>
-											<strong>Order Total</strong>
-										</Col>
-										<Col>
-											<strong>
-												₱{cart?.totalPrice?.toFixed(2)}
-											</strong>
-										</Col>
-									</Row>
-								</ListGroup.Item>
-								<ListGroup.Item
-									style={{
-										display: "flex",
-										justifyContent: "center",
-										marginTop: "10px",
-									}}
-								>
-									<div className="d-grid">
+									{/* Quantity Update */}
+									<div className="flex items-center space-x-2">
 										<button
-											className="fancy"
-											type="button"
-											onClick={placeOrderHandler}
-											disabled={
-												cart.cartItems.length === 0
-											}
-											variant="outlined"
-											sx={{
-												border: "none",
-												backgroundColor: "#f0c040",
-												color: "black",
-											}}
+											className="bg-gray-300 text-gray-700 p-2 rounded-lg"
+											disabled
 										>
-											<span className="top-key"></span>
-											<span className="text">
-												PLACE ORDER
-											</span>
-											<span className="bottom-key-1"></span>
-											<span className="bottom-key-2"></span>
+											<i className="fas fa-minus-circle"></i>
+										</button>
+
+										<span className="text-center w-8">
+											{item.quantity}
+										</span>
+
+										<button
+											className="bg-gray-300 text-gray-700 p-2 rounded-lg"
+											disabled
+										>
+											<i className="fas fa-plus-circle"></i>
 										</button>
 									</div>
-									{loading && <LoadingBox />}
-								</ListGroup.Item>
-							</ListGroup>
-						</Card.Body>
-					</Card>
-				</Col>
-			</Row>
+
+									{/* Price */}
+									<div className="text-right text-lg font-semibold">
+										₱
+										{(item.price * item.quantity).toFixed(
+											2
+										)}
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+
+				{/* Right Column: Order Summary */}
+				<div className="max-h-[250px] flex flex-col justify-start bg-gray-100 py-6 px-4 w-full bg-white shadow-lg rounded-lg">
+					<h2 className="text-xl font-semibold mb-4">
+						Order Summary
+					</h2>
+					<ul className="space-y-4">
+						<li className="flex justify-between">
+							<span>Items</span>
+							<span>₱{cart.itemsPrice.toFixed(2)}</span>
+						</li>
+						<li className="flex justify-between">
+							<span>Shipping</span>
+							<span>₱{cart.shippingPrice.toFixed(2)}</span>
+						</li>
+						<li className="flex justify-between">
+							<span>Down Payment</span>
+							<span>₱{cart.taxPrice.toFixed(2)}</span>
+						</li>
+						<li className="flex justify-between font-semibold">
+							<span>Order Total</span>
+							<span>₱{cart?.totalPrice?.toFixed(2)}</span>
+						</li>
+						{/* Place Order Button */}
+						<li className="flex justify-center mt-6">
+							<button
+								className="w-full bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition"
+								type="button"
+								onClick={placeOrderHandler}
+								disabled={cart.cartItems.length === 0}
+							>
+								<span className="text-xl">PLACE ORDER</span>
+							</button>
+							{loading && <LoadingBox />}
+						</li>
+					</ul>
+				</div>
+			</div>
 		</div>
 	);
 }

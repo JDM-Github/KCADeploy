@@ -1,12 +1,10 @@
 import React, { useEffect, useReducer, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import getError from "../utils";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Helmet } from "react-helmet-async";
 import { Col, Row } from "react-bootstrap";
 import Button from "@mui/material/Button";
-import Rating from "../components/Rating";
 import LoadingBox from "../components/LoadingBox";
 import MessageBox from "../components/MessageBox";
 import Products from "../components/Products";
@@ -134,132 +132,95 @@ function SearchScreen() {
 	};
 
 	return (
-		<div style={{ width: "100vw" }}>
+		<div className="w-full px-4 py-6">
 			<Helmet>
 				<title>Search Products</title>
 			</Helmet>
 
-			<Row>
-				<Col md={2}>
-					<h3>Category</h3>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-evenly",
-							gap: "5px",
-							flexDirection: "column",
-							marginBottom: "20px",
-						}}
-					>
-						<Link
-							className={"all" === category ? "text-bold" : ""}
-							to={getFilterUrl({ category: "all" })}
-							style={{
-								color: "white",
-								textDecorationLine: "none",
-							}}
-						>
-							<button className="Chosen">Any</button>
-						</Link>
-						{categories.map((c) => (
+			<Row className="space-x-4">
+				{/* Filters Section */}
+				<Col md={3} className="p-4 bg-white shadow-lg rounded-lg">
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold">Category</h3>
+						<div className="flex flex-col gap-2">
 							<Link
-								className={
-									c.category === category ? "text-bold" : ""
-								}
-								to={getFilterUrl({ category: c.category })}
-								style={{
-									color: "white",
-									textDecorationLine: "none",
-								}}
-								key={c.category}
+								to={getFilterUrl({ category: "all" })}
+								className={`${
+									category === "all" ? "font-bold" : ""
+								} text-white bg-gray-800 rounded px-4 py-2 text-center`}
 							>
-								<button className="Chosen">
-									{c.category}{" "}
-								</button>
+								Any
 							</Link>
-						))}
+							{categories.map((c) => (
+								<Link
+									key={c.category}
+									to={getFilterUrl({ category: c.category })}
+									className={`${
+										c.category === category
+											? "font-bold"
+											: ""
+									} text-white bg-gray-800 rounded px-4 py-2 text-center`}
+								>
+									{c.category}
+								</Link>
+							))}
+						</div>
 					</div>
 
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-evenly",
-							gap: "5px",
-							flexDirection: "column",
-						}}
-					>
-						<h3>Price</h3>
-						<Link
-							className={"all" === price ? "text-bold" : ""}
-							to={getFilterUrl({ price: "all" })}
-						>
-							<button className="Chosen">Any</button>
-						</Link>
-
-						{prices.map((p) => (
+					<div>
+						<h3 className="text-lg font-semibold mb-4">Price</h3>
+						<div className="flex flex-col gap-2">
 							<Link
-								to={getFilterUrl({ price: p.value })}
-								className={p.value === price ? "text-bold" : ""}
+								to={getFilterUrl({ price: "all" })}
+								className={`${
+									price === "all" ? "font-bold" : ""
+								} text-white bg-gray-800 rounded px-4 py-2 text-center`}
 							>
-								<button className="Chosen">{p.name}</button>
+								Any
 							</Link>
-						))}
+							{prices.map((p) => (
+								<Link
+									key={p.value}
+									to={getFilterUrl({ price: p.value })}
+									className={`${
+										p.value === price ? "font-bold" : ""
+									} text-white bg-gray-800 rounded px-4 py-2 text-center`}
+								>
+									{p.name}
+								</Link>
+							))}
+						</div>
 					</div>
 				</Col>
 
-				<Col md={8}>
+				{/* Products Section */}
+				<Col md={9} className="bg-white p-6 rounded-lg shadow-lg">
 					{loading ? (
-						<LoadingBox></LoadingBox>
+						<LoadingBox />
 					) : error ? (
 						<MessageBox variant="danger">{error}</MessageBox>
 					) : (
 						<>
-							<Row>
-								<Col md={7}>
-									<div
-										style={{
-											display: "flex",
-											marginBottom: "10px",
-										}}
-									>
+							<div className="flex justify-between items-center mb-4">
+								<div>
+									<span className="text-lg font-semibold">
 										{countProducts === 0
-											? "No"
-											: countProducts}{" "}
-										Results
-										<strong>
-											{query !== "all" && " : " + query}
-											{category !== "all" &&
-												" : " + category}
-											{price !== "all" &&
-												" : Price " + price}
-											{rating !== "all" &&
-												" : Rating" + rating + " & up"}
-										</strong>
-										{query !== "all" ||
-										category !== "all" ||
-										rating !== "all" ||
-										price !== "all" ? (
-											<div
-												style={{
-													marginLeft: "2px",
-													padding: "0 5px",
-													cursor: "pointer",
-												}}
-												variant="outlined"
-												onClick={() =>
-													navigate("/search")
-												}
-											>
-												<i className="fas fa-times-circle" />
-											</div>
-										) : null}
-									</div>
-								</Col>
+											? "No Results"
+											: `${countProducts} Results`}
+									</span>
+									<strong>
+										{query !== "all" && `: ${query}`}
+										{category !== "all" && ` : ${category}`}
+										{price !== "all" && ` : Price ${price}`}
+										{rating !== "all" &&
+											` : Rating ${rating} & up`}
+									</strong>
+								</div>
 
-								<Col className="text-end">
-									Sort By{" "}
+								<div>
+									<span className="mr-2">Sort By</span>
 									<select
-										className="sort-select"
+										className="border px-4 py-2 rounded-lg"
 										value={order}
 										onChange={(e) => {
 											navigate(
@@ -279,33 +240,28 @@ function SearchScreen() {
 											Price: High to Low
 										</option>
 									</select>
-								</Col>
-							</Row>
+								</div>
+							</div>
 
-							{!loading && products && products.length === 0 && (
-								<MessageBox>No Product Found</MessageBox>
-							)}
-
-							<Row style={{ marginTop: "10px" }}>
-								{!loading &&
-									products &&
-									products.map((product) => (
-										<Col
-											sm={7}
-											lg={4}
-											className="mb-3"
-											key={product.id}
-										>
+							{/* Product Listings */}
+							{products.length === 0 ? (
+								<MessageBox>No Products Found</MessageBox>
+							) : (
+								<Row className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+									{products.map((product) => (
+										<Col key={product.id} className="mb-6">
 											<Products product={product} />
 										</Col>
 									))}
-							</Row>
+								</Row>
+							)}
 
-							<div>
+							{/* Pagination */}
+							<div className="flex justify-center mt-6">
 								{[...Array(pages).keys()].map((x) => (
 									<LinkContainer
 										key={x + 1}
-										className="mx-1"
+										className="mx-2"
 										to={{
 											pathname: "/search",
 											search: getFilterUrl(
@@ -316,15 +272,11 @@ function SearchScreen() {
 									>
 										<Button
 											variant="contained"
-											sx={{
-												backgroundColor: "black",
-												marginTop: "20px",
-											}}
-											className={
+											className={`${
 												Number(page) === x + 1
-													? "text-bold"
-													: ""
-											}
+													? "bg-black text-white"
+													: "bg-gray-300"
+											} px-4 py-2 rounded-full`}
 										>
 											{x + 1}
 										</Button>
